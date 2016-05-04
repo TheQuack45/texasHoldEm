@@ -6,13 +6,16 @@ using System.Threading.Tasks;
 
 namespace texasHoldEm
 {
-    class Program
+    class Deck
     {
-        static void Main(string[] args)
+        private Card[] _cardList;
+        public Card[] CardList
         {
-
+            get { return _cardList; }
         }
 
+        public this[] {
 
+        }
     }
 }
