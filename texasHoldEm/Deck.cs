@@ -14,8 +14,6 @@ namespace texasHoldEm
             get { return _cardList; }
         }
 
-        public this[] {
-
-        }
+        public Card this => CardList;
     }
 }
