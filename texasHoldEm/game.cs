@@ -25,6 +25,13 @@ namespace texasHoldEm
             {"King", 12},
             {"Ace", 13},
         };
+
+        public static readonly Dictionary<PossibleGames, Deck.DeckStyles> GameDeckStyles = new Dictionary<PossibleGames, Deck.DeckStyles>()
+        {
+            {PossibleGames.TexasHoldEm, Deck.DeckStyles.Standard52},
+        };
+
+        public enum PossibleGames { TexasHoldEm };
         #endregion
 
         #region Members definition
@@ -36,9 +43,9 @@ namespace texasHoldEm
         #endregion
 
         #region Constructors definition
-        public Game()
+        public Game(PossibleGames selectedGame)
         {
-            this._cardDeck = new Deck();
+            this._cardDeck = new Deck(GameDeckStyles[selectedGame]);
             CardDeck.Shuffle();
         }
         #endregion

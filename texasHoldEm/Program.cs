@@ -10,9 +10,9 @@ namespace texasHoldEm
     {
         static void Main(string[] args)
         {
+            Game pokerGame = new Game(Game.PossibleGames.TexasHoldEm);
 
+            Console.ReadKey();
         }
-
-
     }
 }

@@ -8,6 +8,10 @@ namespace texasHoldEm
 {
     class Deck
     {
+        #region Static members definition
+        public enum DeckStyles { Standard52 };
+        #endregion
+
         #region Members and properties definition
         private Stack<Card> _cardStack;
         public Stack<Card> CardStack
@@ -17,10 +21,11 @@ namespace texasHoldEm
         #endregion
 
         #region Constructors definition
-        public Deck()
+        public Deck(DeckStyles selectedStyle = DeckStyles.Standard52)
         {
             this._cardStack = new Stack<Card>();
-            PopulateStandardDeck();
+            if (selectedStyle == DeckStyles.Standard52)
+                PopulateStandardDeck();
         }
         #endregion
 
@@ -107,9 +112,12 @@ namespace texasHoldEm
 
             for (int i = cardArr.Length - 1; i >= 1; i--)
             {
-                int j = randomGen.Next(cardArr.Length);
-                if (!outputCardArr.Contains<Card>(cardArr[j]))
-                    outputCardArr[i] = cardArr[j];
+                do
+                {
+                    int j = randomGen.Next(cardArr.Length);
+                    if (!outputCardArr.Contains<Card>(cardArr[j]))
+                        outputCardArr[i] = cardArr[j];
+                } while (outputCardArr[i] == null);
             }
 
             _cardStack = BuildStack(outputCardArr);
