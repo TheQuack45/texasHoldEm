@@ -111,10 +111,19 @@ namespace texasHoldEm
         }
 
         /// <summary>
+        /// Draws Card from top of CardStack and returns it
+        /// </summary>
+        /// <returns>Drawn Card object</returns>
+        public Card DrawCard()
+        {
+            return CardStack.Pop();
+        }
+
+        /// <summary>
         /// Converts an array of Card objects to a Stack built from the top down
         /// </summary>
         /// <param name="inputArr">Array of Card objects</param>
-        /// <returns></returns>
+        /// <returns>Populated Stack of Card objects</returns>
         private Stack<Card> BuildStack(Card[] inputArr)
         {
             Stack<Card> outputStack = new Stack<Card>();
