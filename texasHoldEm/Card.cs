@@ -9,7 +9,7 @@ namespace texasHoldEm
     class Card
     {
         #region Static members definition
-        public static const Dictionary<string, string> PosDict = new Dictionary<string, string>()
+        public static readonly Dictionary<string, string> PosDict = new Dictionary<string, string>()
         {
             {"1", "Ace"},
             {"A", "Ace"},
@@ -41,7 +41,7 @@ namespace texasHoldEm
             {"king", "King"},
         };
 
-        public static const Dictionary<string, string> SuitColorDict = new Dictionary<string, string>()
+        public static readonly Dictionary<string, string> SuitColorDict = new Dictionary<string, string>()
         {
             {"Clubs", "Black"},
             {"clubs", "Black"},
