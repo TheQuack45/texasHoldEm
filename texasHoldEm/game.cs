@@ -40,6 +40,18 @@ namespace texasHoldEm
         {
             get { return _cardDeck; }
         }
+
+        private List<Player> _playerList;
+        public List<Player> PlayerList
+        {
+            get { return _playerList; }
+        }
+
+        private PossibleGames _gameType;
+        public PossibleGames GameType
+        {
+            get { return _gameType; }
+        }
         #endregion
 
         #region Constructors definition
@@ -47,6 +59,24 @@ namespace texasHoldEm
         {
             this._cardDeck = new Deck(GameDeckStyles[selectedGame]);
             CardDeck.Shuffle();
+            this._gameType = selectedGame;
+        }
+        #endregion
+
+        #region Methods definition
+        /// <summary>
+        /// Add the given Player object to the current game's list of players
+        /// </summary>
+        /// <param name="cPlayer">The Player object to add</param>
+        public void AddPlayer(Player cPlayer)
+        {
+            if (!PlayerList.Contains<Player>(cPlayer))
+            {
+                PlayerList.Add(cPlayer);
+                cPlayer.SetHandSize(this.GameType);
+            }
+
+            return;
         }
         #endregion
     }
