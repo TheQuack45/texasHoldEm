@@ -16,7 +16,7 @@ namespace texasHoldEm
 
         public Game()
         {
-            this.CardDeck = new Deck();
+            this._cardDeck = new Deck();
             CardDeck.Shuffle();
         }
     }
