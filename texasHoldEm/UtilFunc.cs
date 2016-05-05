@@ -8,6 +8,11 @@ namespace texasHoldEm
 {
     class UtilFunc
     {
+        /// <summary>
+        /// Converts the input string to sentence case (First character capitalized, rest lowercase
+        /// </summary>
+        /// <param name="input">String object to convert to sentence case</param>
+        /// <returns>String object in sentence case</returns>
         public static string ToSentenceCase(string input)
         {
             char[] inputCharArr = input.ToCharArray();
@@ -19,7 +24,7 @@ namespace texasHoldEm
                     outputCharArr[i] = Char.ToUpper(inputCharArr[i]);
                 else
                 {
-                    outputCharArr[i] = inputCharArr[i];
+                    outputCharArr[i] = Char.ToLower(inputCharArr[i]);
                 }
             }
 

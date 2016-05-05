@@ -8,18 +8,23 @@ namespace texasHoldEm
 {
     class Deck
     {
+        #region Members and properties definition
         private Stack<Card> _cardStack;
         public Stack<Card> CardStack
         {
             get { return _cardStack; }
         }
+        #endregion
 
+        #region Constructors definition
         public Deck()
         {
             this._cardStack = new Stack<Card>();
             PopulateStandardDeck();
         }
+        #endregion
 
+        #region Method definition
         /// <summary>
         /// Populates this object's card deck with a standard 52 French set, unshuffled
         /// </summary>
@@ -135,5 +140,6 @@ namespace texasHoldEm
 
             return outputStack;
         }
+        #endregion
     }
 }

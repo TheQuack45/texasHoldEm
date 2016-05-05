@@ -8,6 +8,7 @@ namespace texasHoldEm
 {
     class Card
     {
+        #region Static members definition
         public static const Dictionary<string, string> PosDict = new Dictionary<string, string>()
         {
             {"1", "Ace"},
@@ -51,7 +52,9 @@ namespace texasHoldEm
             {"Spades", "Black"},
             {"spades", "Black"}, 
         };
+        #endregion
 
+        #region Members definition
         private string _suit;
         public string Suit
         {
@@ -63,13 +66,17 @@ namespace texasHoldEm
         {
             get { return _pos; }
         }
+        #endregion
 
+        #region Constructors definition
         public Card(string pos, string suit)
         {
             PosSelect(pos);
             SuitSelect(suit);
         }
+        #endregion
 
+        #region Methods definition
         /// <summary>
         /// Sets the current Card object's `_pos` (position) member to the correct option.
         /// Throws exception if input is not a valid 52 French deck card position.
@@ -156,5 +163,6 @@ namespace texasHoldEm
 
             return;
         }
+        #endregion
     }
 }
