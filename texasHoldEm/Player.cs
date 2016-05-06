@@ -43,9 +43,9 @@ namespace texasHoldEm
 
         #region Methods definition
         /// <summary>
-        /// Sets this player's hand size to the appropriate size for the selected game
+        /// Sets this Player's hand size to the appropriate size for the selected game.
         /// </summary>
-        /// <param name="gameType">Enum Game.PossibleGames used to choose the appropriate hand size (eg Hand size in Texas Hold'em is 2)</param>
+        /// <param name="gameType">Enum Game.PossibleGames used to choose the appropriate hand size. (eg Hand size in Texas Hold'em is 2)</param>
         public void SetHandSize(Game.PossibleGames gameType)
         {
             int handSize = HandSizeDict[gameType];
@@ -53,6 +53,27 @@ namespace texasHoldEm
             this._currentHand = new Card[handSize];
 
             return;
+        }
+
+        /// <summary>
+        /// Add the given Card to this Player's hand. Throws HandFullException if there is no space in the hand.
+        /// </summary>
+        /// <param name="cCard">The Card to add to the Player's hand</param>
+        public void AddCardToHand(Card cCard)
+        {
+            if (!this.CurrentHand.Contains<Card>(cCard))
+            {
+                for (int i = 0; i < this.HandSize; i++)
+                {
+                    if (this.CurrentHand[i] == null)
+                    {
+                        this.CurrentHand[i] = cCard;
+                        return;
+                    }
+                }
+
+                throw new HandFullException("The Card could not be added because the current Player's hand is full");
+            }
         }
         #endregion
     }

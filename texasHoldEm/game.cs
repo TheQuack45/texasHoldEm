@@ -60,6 +60,7 @@ namespace texasHoldEm
             this._cardDeck = new Deck(GameDeckStyles[selectedGame]);
             CardDeck.Shuffle();
             this._gameType = selectedGame;
+            this._playerList = new List<Player>();
         }
         #endregion
 
@@ -77,6 +78,17 @@ namespace texasHoldEm
             }
 
             return;
+        }
+
+        public void DistributeHands()
+        {
+            foreach (Player cPlayer in this.PlayerList)
+            {
+                for (int i = 1; i <= cPlayer.HandSize; i++)
+                {
+                    cPlayer.AddCardToHand(this.CardDeck.DrawCard());
+                }
+            }
         }
         #endregion
     }

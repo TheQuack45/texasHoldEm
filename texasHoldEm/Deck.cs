@@ -110,7 +110,7 @@ namespace texasHoldEm
             Card[] cardArr = CardStack.ToArray<Card>();
             Card[] outputCardArr = new Card[cardArr.Length];
 
-            for (int i = cardArr.Length - 1; i >= 1; i--)
+            for (int i = cardArr.Length - 1; i >= 0; i--)
             {
                 do
                 {
