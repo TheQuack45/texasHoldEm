@@ -42,7 +42,9 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Card.cs" />
+    <Compile Include="Computer.cs" />
     <Compile Include="Deck.cs" />
+    <Compile Include="DeckEmptyException.cs" />
     <Compile Include="Game.cs" />
     <Compile Include="HandFullException.cs" />
     <Compile Include="Player.cs" />

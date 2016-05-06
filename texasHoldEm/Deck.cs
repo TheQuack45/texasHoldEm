@@ -129,7 +129,11 @@ namespace texasHoldEm
         /// <returns>Drawn Card object</returns>
         public Card DrawCard()
         {
-            return CardStack.Pop();
+            if (CardStack.Count > 0)
+            {
+                return CardStack.Pop();
+            }
+            throw new DeckEmptyException("A Card cannot be drawn from the Deck because the Deck is empty.");
         }
 
         /// <summary>

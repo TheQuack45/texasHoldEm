@@ -75,6 +75,16 @@ namespace texasHoldEm
                 throw new HandFullException("The Card could not be added because the current Player's hand is full");
             }
         }
+
+        public void SubscribeToGameBetting(Game game)
+        {
+            game.BetReady += new Game.BetReadyEventHandler(this.MakeBet);
+        }
+
+        public void MakeBet(object sender, BetReadyEventArgs args)
+        {
+            // TODO: finish event logic
+        }
         #endregion
     }
 }

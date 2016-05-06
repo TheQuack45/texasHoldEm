@@ -52,6 +52,21 @@ namespace texasHoldEm
         {
             get { return _gameType; }
         }
+
+        private int _currentBet;
+        public int CurrentBet
+        {
+            get { return _currentBet; }
+        }
+
+        private int _currentPot;
+        public int CurrentPot
+        {
+            get { return _currentPot; }
+        }
+
+        public delegate void BetReadyEventHandler(object sender, BetReadyEventArgs args);
+        public event BetReadyEventHandler BetReady;
         #endregion
 
         #region Constructors definition
@@ -80,16 +95,51 @@ namespace texasHoldEm
             return;
         }
 
+        /// <summary>
+        /// Distribute cards to each player to fill their hands
+        /// </summary>
         public void DistributeHands()
         {
             foreach (Player cPlayer in this.PlayerList)
             {
                 for (int i = 1; i <= cPlayer.HandSize; i++)
                 {
+                    // TODO: error handling
                     cPlayer.AddCardToHand(this.CardDeck.DrawCard());
                 }
             }
         }
+
+        public void PlayBettingRound()
+        {
+            foreach (Player cPlayer in this.PlayerList)
+            {
+                OnBetReady(new BetReadyEventArgs(cPlayer));
+            }
+        }
+
+        protected virtual void OnBetReady(BetReadyEventArgs args)
+        {
+            if (BetReady != null)
+            {
+                BetReady(this, args);
+            }
+        }
         #endregion
+    }
+
+    class BetReadyEventArgs : EventArgs
+    {
+        private Player _bettingPlayer;
+        public Player BettingPlayer
+        {
+            get { return _bettingPlayer; }
+            set { _bettingPlayer = value; }
+        }
+
+        public BetReadyEventArgs(Player bettingPlayer)
+        {
+            this.BettingPlayer = bettingPlayer;
+        }
     }
 }

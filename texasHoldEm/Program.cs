@@ -12,6 +12,7 @@ namespace texasHoldEm
         {
             Game pokerGame = new Game(Game.PossibleGames.TexasHoldEm);
             Player humanPlayer = new Player(Game.PossibleGames.TexasHoldEm);
+            Computer testComputer = new Computer(Game.PossibleGames.TexasHoldEm);
             pokerGame.AddPlayer(humanPlayer);
             pokerGame.DistributeHands();
 
