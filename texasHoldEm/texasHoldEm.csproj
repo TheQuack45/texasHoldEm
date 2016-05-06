@@ -41,6 +41,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="BetChoice.cs" />
     <Compile Include="Card.cs" />
     <Compile Include="Computer.cs" />
     <Compile Include="Deck.cs" />

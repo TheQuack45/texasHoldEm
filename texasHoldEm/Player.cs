@@ -83,7 +83,11 @@ namespace texasHoldEm
 
         public void MakeBet(object sender, BetReadyEventArgs args)
         {
-            // TODO: finish event logic
+            if (args.BettingPlayer == this)
+            {
+                // This player object is the player making the bet
+                Program.GetPlayerBet(args.CurrentBet);
+            }
         }
         #endregion
     }

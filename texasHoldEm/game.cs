@@ -114,7 +114,7 @@ namespace texasHoldEm
         {
             foreach (Player cPlayer in this.PlayerList)
             {
-                OnBetReady(new BetReadyEventArgs(cPlayer));
+                OnBetReady(new BetReadyEventArgs(cPlayer, this.CurrentBet));
             }
         }
 
@@ -137,9 +137,16 @@ namespace texasHoldEm
             set { _bettingPlayer = value; }
         }
 
-        public BetReadyEventArgs(Player bettingPlayer)
+        private int _currentBet;
+        public int CurrentBet
+        {
+            get { return _currentBet; }
+        }
+
+        public BetReadyEventArgs(Player bettingPlayer, int currentBet)
         {
             this.BettingPlayer = bettingPlayer;
+            this._currentBet = currentBet;
         }
     }
 }
