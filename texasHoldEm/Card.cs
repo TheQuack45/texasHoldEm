@@ -164,6 +164,10 @@ namespace texasHoldEm
             return;
         }
 
+        /// <summary>
+        /// Outputs the formatted name of this card ("{Position} of {Suit}")
+        /// </summary>
+        /// <returns>Formatted Card name</returns>
         public string GetName()
         {
             return (this.Pos + " of " + this.Suit);
