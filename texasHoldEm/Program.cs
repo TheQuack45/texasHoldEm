@@ -58,7 +58,7 @@ namespace texasHoldEm
         public static void InformBetAction(object sender, BetMadeEventArgs args)
         {
             Game cGame = (Game)sender;
-            //if (args.PlayerName != cGame.HumanPlayer.PlayerName) {
+            if (args.PlayerName != cGame.HumanPlayer.PlayerName) {
                 // Betting player is not the human player
                 if (args.BetChoice == BetChoice.BetActions.Fold)
                 {
@@ -80,7 +80,7 @@ namespace texasHoldEm
                     // Player acting raised
                     Console.WriteLine("{0} raised for {1} chips, making the current bet {2} chips.", args.PlayerName, (args.BetAmount - cGame.CurrentBet), args.BetAmount);
                 }
-            //}
+            }
         }
 
         public static void DispCommunityCards(Game currentGame)
