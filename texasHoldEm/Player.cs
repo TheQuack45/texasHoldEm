@@ -40,6 +40,12 @@ namespace texasHoldEm
         {
             get { return _registeredGame; }
         }
+
+        protected string _playerName;
+        public string PlayerName
+        {
+            get { return _playerName; }
+        }
         #endregion
 
         #region Constructors definition
@@ -48,9 +54,10 @@ namespace texasHoldEm
             
         }
 
-        public Player(Game gameToRegister)
+        public Player(Game gameToRegister, string playerName)
         {
             this.RegisterGame(gameToRegister);
+            this._playerName = playerName;
         }
         #endregion
 

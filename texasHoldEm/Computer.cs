@@ -14,9 +14,10 @@ namespace texasHoldEm
 
         }
 
-        public Computer(Game gameToRegister)
+        public Computer(Game gameToRegister, string computerName)
         {
             this.RegisterGame(gameToRegister);
+            this._playerName = computerName;
         }
         #endregion
 

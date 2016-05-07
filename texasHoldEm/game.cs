@@ -93,6 +93,9 @@ namespace texasHoldEm
         {
             get { return _computerPlayer; }
         }
+
+        public delegate void BetMadeEventHandler(object sender, BetMadeEventArgs args);
+        public event BetMadeEventHandler BetMade;
         #endregion
 
         #region Constructors definition
@@ -176,6 +179,7 @@ namespace texasHoldEm
             if (returnedBet.BetAction == BetChoice.BetActions.Raise)
             {
                 // Currently betting Player raised
+                OnBetMade(new BetMadeEventArgs(cPlayer.PlayerName, returnedBet.BetAction, returnedBet.BetAmount));
                 if (returnedBet.BetAmount >= this.CurrentBet)
                 {
                     // Player could match or beat the current bet. Set CurrentBet to the bet made by the Player.
@@ -192,17 +196,36 @@ namespace texasHoldEm
             {
                 // Currently betting Player called
                 this._currentPot += returnedBet.BetAmount;
+                OnBetMade(new BetMadeEventArgs(cPlayer.PlayerName, returnedBet.BetAction, returnedBet.BetAmount));
             }
             else if (returnedBet.BetAction == BetChoice.BetActions.Fold)
             {
-                // Currently betting Played folded
+                // Currently betting Player folded
                 // Add to this round's folded Players list
                 this.FoldedPlayerList.Add(cPlayer);
+                OnBetMade(new BetMadeEventArgs(cPlayer.PlayerName, returnedBet.BetAction));
+            }
+            else if (returnedBet.BetAction == BetChoice.BetActions.Check)
+            {
+                // Currently betting Player checked
+                OnBetMade(new BetMadeEventArgs(cPlayer.PlayerName, returnedBet.BetAction, returnedBet.BetAmount));
             }
         }
 
         /// <summary>
-        /// Draw three cards and place them in this Game's community cards array for the flop
+        /// Method for BetMade event triggering
+        /// </summary>
+        /// <param name="args">BetMadeEventArgs object</param>
+        protected virtual void OnBetMade(BetMadeEventArgs args)
+        {
+            if (BetMade != null)
+            {
+                BetMade(this, args);
+            }
+        }
+
+        /// <summary>
+        /// Draw three Cards and place them in this Game's community Cards array for the flop
         /// </summary>
         public void DrawFlop()
         {
@@ -214,34 +237,74 @@ namespace texasHoldEm
         }
 
         /// <summary>
-        /// Draw one card and place it in this Game's community cards array for the turn
+        /// Draw one Card and place it in this Game's community Cards array for the turn
         /// </summary>
         public void DrawTurn()
         {
             this.CommunityCards[3] = this.CardDeck.DrawCard();
         }
+
+        /// <summary>
+        /// Draw one Card and place it in this Game's community Cards array for the river
+        /// </summary>
+        public void DrawRiver()
+        {
+            this.CommunityCards[4] = this.CardDeck.DrawCard();
+        }
         #endregion
     }
 
-    class BetReadyEventArgs : EventArgs
+    class BetMadeEventArgs : EventArgs
     {
-        private Player _bettingPlayer;
-        public Player BettingPlayer
+        private string _playerName;
+        public string PlayerName
         {
-            get { return _bettingPlayer; }
-            set { _bettingPlayer = value; }
+            get { return _playerName; }
         }
 
-        private int _currentBet;
-        public int CurrentBet
+        private BetChoice.BetActions _betChoice;
+        public BetChoice.BetActions BetChoice
         {
-            get { return _currentBet; }
+            get { return _betChoice; }
         }
 
-        public BetReadyEventArgs(Player bettingPlayer, int currentBet)
+        private int _betAmount;
+        public int BetAmount
         {
-            this.BettingPlayer = bettingPlayer;
-            this._currentBet = currentBet;
+            get { return _betAmount; }
+        }
+
+        public BetMadeEventArgs(string playerName, BetChoice.BetActions betChoice, int betAmount)
+        {
+            if (betChoice != texasHoldEm.BetChoice.BetActions.Fold)
+            {
+                // betChoice is the correct type for specifying betAmount
+                this._playerName = playerName;
+                this._betChoice = betChoice;
+                this._betAmount = betAmount;
+            }
+            else
+            {
+                // betChoice is not the correct type for specifying betAmount
+                // Throw exception
+                throw new ArgumentException("betAmount cannot be specified when betChoice is Fold. Use the constructor without 'int betAmount'.", "betAmount");
+            }
+        }
+
+        public BetMadeEventArgs(string playerName, BetChoice.BetActions betChoice)
+        {
+            if (betChoice == texasHoldEm.BetChoice.BetActions.Fold)
+            {
+                // betChoice is the correct type for not specifying betAmount
+                this._playerName = playerName;
+                this._betChoice = betChoice;
+            }
+            else
+            {
+                // betChoice is not the correct type for not specifying betAmount
+                // Throw exception
+                throw new ArgumentException("You must specify betAmount when betAction is anything other than Fold. Use the constructor with 'int betAmount'.");
+            }
         }
     }
 }

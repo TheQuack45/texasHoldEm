@@ -12,7 +12,8 @@ namespace texasHoldEm
         static void Main(string[] args)
         {
             Game pokerGame = new Game(Game.PossibleGames.TexasHoldEm);
-            Player humanPlayer = new Player(pokerGame);
+            pokerGame.BetMade += new Game.BetMadeEventHandler(InformBetAction);
+            Player humanPlayer = new Player(pokerGame, "Human");
             //Computer testComputer = new Computer(pokerGame);
             pokerGame.AddPlayer(humanPlayer);
             pokerGame.DistributeHands();
@@ -43,7 +44,43 @@ namespace texasHoldEm
             pokerGame.PlayBettingRound();
             Console.WriteLine("");
 
+            pokerGame.DrawRiver();
+            Console.WriteLine("The river has been drawn. The community cards are:");
+            DispCommunityCards(pokerGame);
+            Console.WriteLine("");
+
+            pokerGame.PlayBettingRound();
+            Console.WriteLine("");
+
             Console.ReadKey();
+        }
+
+        public static void InformBetAction(object sender, BetMadeEventArgs args)
+        {
+            Game cGame = (Game)sender;
+            //if (args.PlayerName != cGame.HumanPlayer.PlayerName) {
+                // Betting player is not the human player
+                if (args.BetChoice == BetChoice.BetActions.Fold)
+                {
+                    // Player acting folded
+                    Console.WriteLine("{0} folded out of the hand.", args.PlayerName);
+                }
+                else if (args.BetChoice == BetChoice.BetActions.Check)
+                {
+                    // Player acting checked
+                    Console.WriteLine("{0} checked.", args.PlayerName);
+                }
+                else if (args.BetChoice == BetChoice.BetActions.Call)
+                {
+                    // Player acting called
+                    Console.WriteLine("{0} called for {1} chips.", args.PlayerName, args.BetAmount);
+                }
+                else if (args.BetChoice == BetChoice.BetActions.Raise)
+                {
+                    // Player acting raised
+                    Console.WriteLine("{0} raised for {1} chips, making the current bet {2} chips.", args.PlayerName, (args.BetAmount - cGame.CurrentBet), args.BetAmount);
+                }
+            //}
         }
 
         public static void DispCommunityCards(Game currentGame)
