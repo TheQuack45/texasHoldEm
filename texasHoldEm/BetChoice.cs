@@ -29,13 +29,21 @@ namespace texasHoldEm
         #region Constructors definition
         public BetChoice(BetActions betAction)
         {
-            if (betAction == BetActions.Check || betAction == BetActions.Fold || betAction == BetActions.Call)
-            this._betAction = betAction;
+            if (betAction == BetActions.Check || betAction == BetActions.Fold)
+                this._betAction = betAction;
+            else
+                throw new ArgumentException("You must provide a bet amount with a Raise or Call.");
         }
 
         public BetChoice(BetActions betAction, int betAmount)
         {
-            // TODO: continue this
+            if (betAction == BetActions.Call || betAction == BetActions.Raise)
+            {
+                this._betAction = betAction;
+                this._betAmount = betAmount;
+            }
+            else
+                throw new ArgumentException("You cannot provide a bet amount with a Check or Fold.");
         }
         #endregion
     }

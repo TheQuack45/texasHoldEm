@@ -47,6 +47,12 @@ namespace texasHoldEm
             get { return _playerList; }
         }
 
+        private List<Player> _foldedPlayerList;
+        public List<Player> FoldedPlayerList
+        {
+            get { return _foldedPlayerList; }
+        }
+
         private PossibleGames _gameType;
         public PossibleGames GameType
         {
@@ -76,6 +82,7 @@ namespace texasHoldEm
             CardDeck.Shuffle();
             this._gameType = selectedGame;
             this._playerList = new List<Player>();
+            this._foldedPlayerList = new List<Player>();
         }
         #endregion
 
@@ -89,10 +96,12 @@ namespace texasHoldEm
             if (!PlayerList.Contains<Player>(cPlayer))
             {
                 PlayerList.Add(cPlayer);
-                cPlayer.SetHandSize(this.GameType);
+                if (cPlayer.RegisteredGame == null)
+                {
+                    // Player object is not registered to a Game
+                    cPlayer.RegisterGame(this);
+                }
             }
-
-            return;
         }
 
         /// <summary>
@@ -107,14 +116,45 @@ namespace texasHoldEm
                     // TODO: error handling
                     cPlayer.AddCardToHand(this.CardDeck.DrawCard());
                 }
+                cPlayer.AddChips(5);
             }
         }
 
+        /// <summary>
+        /// Run through a round of betting, going to each unfolded Player and receive bets
+        /// </summary>
         public void PlayBettingRound()
         {
             foreach (Player cPlayer in this.PlayerList)
             {
-                OnBetReady(new BetReadyEventArgs(cPlayer, this.CurrentBet));
+                if (!this.FoldedPlayerList.Contains(cPlayer))
+                {
+                    // Player has not folded out of this hand
+                    this.GetNextBet(cPlayer);
+                }
+            }
+        }
+
+        private void GetNextBet(Player cPlayer)
+        {
+            //OnBetReady(new BetReadyEventArgs(cPlayer, this.CurrentBet));
+            BetChoice returnedBet = cPlayer.MakeBet(this.CurrentBet);
+            if (returnedBet.BetAction == BetChoice.BetActions.Raise)
+            {
+                // Currently betting Player raised
+                this._currentBet = returnedBet.BetAmount;
+                this._currentPot += returnedBet.BetAmount;
+            }
+            else if (returnedBet.BetAction == BetChoice.BetActions.Call)
+            {
+                // Currently betting Player called
+                this._currentPot += returnedBet.BetAmount;
+            }
+            else if (returnedBet.BetAction == BetChoice.BetActions.Fold)
+            {
+                // Currently betting Played folded
+                // Add to this round's folded Players list
+                this.FoldedPlayerList.Add(cPlayer);
             }
         }
 

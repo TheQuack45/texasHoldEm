@@ -14,9 +14,9 @@ namespace texasHoldEm
 
         }
 
-        public Computer(Game.PossibleGames gameType)
+        public Computer(Game gameToRegister)
         {
-            this.SetHandSize(gameType);
+            this.RegisterGame(gameToRegister);
         }
         #endregion
 
