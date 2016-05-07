@@ -33,6 +33,7 @@ namespace texasHoldEm
             
             if (currentBet == 0)
             {
+                // TODO: Allow player to specify "raise {number}" or "all-in" and automatically raise by the number specified or go all in
                 // There is no current bet. Player cannot call
                 Console.WriteLine("The current bet is {0}. You can 'check', 'raise', or 'fold'. You have {1} chips.", currentBet, currentChipCount);
                 do
