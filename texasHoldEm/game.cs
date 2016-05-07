@@ -31,6 +31,11 @@ namespace texasHoldEm
             {PossibleGames.TexasHoldEm, Deck.DeckStyles.Standard52},
         };
 
+        public static readonly Dictionary<PossibleGames, int> CommunityCardsSize = new Dictionary<PossibleGames, int>()
+        {
+            {PossibleGames.TexasHoldEm, 5},
+        };
+
         public enum PossibleGames { TexasHoldEm };
         #endregion
 
@@ -39,6 +44,12 @@ namespace texasHoldEm
         public Deck CardDeck
         {
             get { return _cardDeck; }
+        }
+
+        private Card[] _communityCards;
+        public Card[] CommunityCards
+        {
+            get { return _communityCards; }
         }
 
         private List<Player> _playerList;
@@ -88,6 +99,7 @@ namespace texasHoldEm
         public Game(PossibleGames selectedGame)
         {
             this._cardDeck = new Deck(GameDeckStyles[selectedGame]);
+            this._communityCards = new Card[CommunityCardsSize[selectedGame]];
             CardDeck.Shuffle();
             this._gameType = selectedGame;
             this._playerList = new List<Player>();
@@ -153,6 +165,9 @@ namespace texasHoldEm
                     this.GetNextBet(cPlayer);
                 }
             }
+
+            // Reset _currentBet
+            this._currentBet = 0;
         }
 
         private void GetNextBet(Player cPlayer)
@@ -184,6 +199,26 @@ namespace texasHoldEm
                 // Add to this round's folded Players list
                 this.FoldedPlayerList.Add(cPlayer);
             }
+        }
+
+        /// <summary>
+        /// Draw three cards and place them in this Game's community cards array for the flop
+        /// </summary>
+        public void DrawFlop()
+        {
+            for (int i = 0; i < 3; i++)
+            {
+                // Loop three times and draw a card each time for the flop
+                this.CommunityCards[i] = this.CardDeck.DrawCard();
+            }
+        }
+
+        /// <summary>
+        /// Draw one card and place it in this Game's community cards array for the turn
+        /// </summary>
+        public void DrawTurn()
+        {
+            this.CommunityCards[3] = this.CardDeck.DrawCard();
         }
         #endregion
     }

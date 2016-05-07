@@ -23,9 +23,44 @@ namespace texasHoldEm
                 Console.WriteLine(cCard.GetName());
             }
             Console.WriteLine("");
+
             pokerGame.PlayBettingRound();
+            Console.WriteLine("");
+
+            pokerGame.DrawFlop();
+            Console.WriteLine("The flop has been drawn. The community cards are:");
+            DispCommunityCards(pokerGame);
+            Console.WriteLine("");
+
+            pokerGame.PlayBettingRound();
+            Console.WriteLine("");
+
+            pokerGame.DrawTurn();
+            Console.WriteLine("The turn has been drawn. The community cards are:");
+            DispCommunityCards(pokerGame);
+            Console.WriteLine("");
+
+            pokerGame.PlayBettingRound();
+            Console.WriteLine("");
 
             Console.ReadKey();
+        }
+
+        public static void DispCommunityCards(Game currentGame)
+        {
+            foreach (Card cCard in currentGame.CommunityCards)
+            {
+                // List each card in the community card set
+                try
+                {
+                    Console.WriteLine(cCard.GetName());
+                }
+                catch (NullReferenceException e)
+                {
+                    // There are no more cards in the community set
+                    break;
+                }
+            }
         }
 
         /// <summary>
