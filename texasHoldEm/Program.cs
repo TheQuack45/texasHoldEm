@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 namespace texasHoldEm
@@ -35,136 +36,308 @@ namespace texasHoldEm
             {
                 // TODO: Allow player to specify "raise {number}" or "all-in" and automatically raise by the number specified or go all in
                 // There is no current bet. Player cannot call
-                Console.WriteLine("The current bet is {0}. You can 'check', 'raise', or 'fold'. You have {1} chips.", currentBet, currentChipCount);
+                Console.WriteLine("The current bet is {0}. You can 'check', 'raise [num]', go 'all-in', or 'fold'. You have {1} chips.", currentBet, currentChipCount);
                 do
                 {
-                    string actionChoice = Console.ReadLine().ToLower();
-                    switch (actionChoice)
-                    {
-                        case "check":
-                            betChoice = new BetChoice(BetChoice.BetActions.Check);
-                            break;
-                        case "raise":
-                            Console.WriteLine("How much would you like to raise? (positive integer or 'all-in')");
-                            do
-                            {
+                    string[] actionChoiceArr = Regex.Split(Console.ReadLine().ToLower(), " ");
+                    try {
+                        switch (actionChoiceArr[0])
+                        {
+                            case "check":
+                                betChoice = new BetChoice(BetChoice.BetActions.Check);
+                                break;
+                            case "raise":
                                 try
                                 {
-                                    string betAmountString = Console.ReadLine().ToLower();
-                                    if (betAmountString == "all-in")
+                                    // Player specified amount to raise by "raise {number}"
+                                    bool isPreSpecRaiseNumInvalid = false;
+                                    do
                                     {
-                                        betAmount = currentChipCount;
-                                    }
-                                    else
-                                    {
-                                        betAmount = Int32.Parse(betAmountString);
-                                        if (betAmount > currentChipCount)
+                                        if (!isPreSpecRaiseNumInvalid)
                                         {
-                                            // Player tried to bet more than they have available
-                                            Console.WriteLine("You cannot bet more chips than you have. You have {0} chips available.", currentChipCount);
-                                            betAmount = 0;
+                                            // Check Player's specified raise number normally
+                                            string betAmountString = actionChoiceArr[1];
+                                            try
+                                            {
+                                                betAmount = Int32.Parse(betAmountString);
+                                                if (betAmount > currentChipCount)
+                                                {
+                                                    // Player tried to bet more than they have available
+                                                    Console.WriteLine("You cannot bet more chips than you have. You have {0} chips available.", currentChipCount);
+                                                    isPreSpecRaiseNumInvalid = true;
+                                                    betAmount = 0;
+                                                }
+                                                else if (betAmount < 0)
+                                                {
+                                                    // Player tried to bet a negative amount of chips
+                                                    Console.WriteLine("You cannot bet a negative amount of chips.");
+                                                    isPreSpecRaiseNumInvalid = true;
+                                                    betAmount = 0;
+                                                }
+                                            }
+                                            catch (FormatException parseE)
+                                            {
+                                                Console.WriteLine("Please enter a valid positive integer.");
+                                                isPreSpecRaiseNumInvalid = true;
+                                            }
                                         }
-                                        else if (betAmount < 0)
+                                        else
                                         {
-                                            // Player tried to bet a negative amount of chips
-                                            Console.WriteLine("You cannot bet a negative amount of chips.");
-                                            betAmount = 0;
+                                            // Player's pre-specified raise num is invalid. Get new one from player
+                                            Console.WriteLine("How much would you like to raise? (positive integer or 'all-in')");
+                                            do
+                                            {
+                                                try
+                                                {
+                                                    string betAmountString = Console.ReadLine().ToLower();
+                                                    if (betAmountString == "all-in")
+                                                    {
+                                                        betAmount = currentChipCount;
+                                                    }
+                                                    else
+                                                    {
+                                                        betAmount = Int32.Parse(betAmountString);
+                                                        if (betAmount > currentChipCount)
+                                                        {
+                                                            // Player tried to bet more than they have available
+                                                            Console.WriteLine("You cannot bet more chips than you have. You have {0} chips available.", currentChipCount);
+                                                            betAmount = 0;
+                                                        }
+                                                        else if (betAmount < 0)
+                                                        {
+                                                            // Player tried to bet a negative amount of chips
+                                                            Console.WriteLine("You cannot bet a negative amount of chips.");
+                                                            betAmount = 0;
+                                                        }
+                                                    }
+                                                }
+                                                catch (FormatException parseE)
+                                                {
+                                                    Console.WriteLine("Please enter a valid positive integer.");
+                                                }
+                                            } while (betAmount == 0);
                                         }
-                                    }
+                                    } while (betAmount == 0);
                                 }
-                                catch (FormatException e)
+                                catch (IndexOutOfRangeException e)
                                 {
-                                    Console.WriteLine("Please enter a valid positive integer.");
+                                    // Player did not specify amount to raise by "raise {number}". Get number to raise from player
+                                    Console.WriteLine("How much would you like to raise? (positive integer or 'all-in')");
+                                    do
+                                    {
+                                        try
+                                        {
+                                            string betAmountString = Console.ReadLine().ToLower();
+                                            if (betAmountString == "all-in")
+                                            {
+                                                betAmount = currentChipCount;
+                                            }
+                                            else
+                                            {
+                                                betAmount = Int32.Parse(betAmountString);
+                                                if (betAmount > currentChipCount)
+                                                {
+                                                    // Player tried to bet more than they have available
+                                                    Console.WriteLine("You cannot bet more chips than you have. You have {0} chips available.", currentChipCount);
+                                                    betAmount = 0;
+                                                }
+                                                else if (betAmount < 0)
+                                                {
+                                                    // Player tried to bet a negative amount of chips
+                                                    Console.WriteLine("You cannot bet a negative amount of chips.");
+                                                    betAmount = 0;
+                                                }
+                                            }
+                                        }
+                                        catch (FormatException parseE)
+                                        {
+                                            Console.WriteLine("Please enter a valid positive integer.");
+                                        }
+                                    } while (betAmount == 0);
                                 }
-                            } while (betAmount == 0);
-                            if (betAmount > 0)
-                            {
-                                betChoice = new BetChoice(BetChoice.BetActions.Raise, betAmount);
-                            }
-                            else
-                            {
-                                betChoice = new BetChoice(BetChoice.BetActions.Check);
-                            }
-                            break;
-                        case "fold":
-                            betChoice = new BetChoice(BetChoice.BetActions.Fold);
-                            break;
-                        default:
-                            Console.WriteLine("Bet choice unrecognized. You can 'check', 'raise', or 'fold'.");
-                            break;
+
+                                if (betAmount > 0)
+                                {
+                                    betChoice = new BetChoice(BetChoice.BetActions.Raise, betAmount);
+                                }
+                                else
+                                {
+                                    betChoice = new BetChoice(BetChoice.BetActions.Check);
+                                }
+                                break;
+                            case "fold":
+                                betChoice = new BetChoice(BetChoice.BetActions.Fold);
+                                break;
+                            case "all-in":
+                                betChoice = new BetChoice(BetChoice.BetActions.Raise, currentChipCount);
+                                break;
+                            default:
+                                Console.WriteLine("Bet choice unrecognized. You can 'check', 'raise', or 'fold'.");
+                                break;
+                        }
+                    }
+                    catch (IndexOutOfRangeException e)
+                    {
+                        Console.WriteLine("Command unrecognized. You can 'check', 'raise [num]', or 'fold'.");
                     }
                 } while (betChoice == null);
             }
             else if (currentBet > 0)
             {
                 // Current bet is positive. Player cannot check
-                Console.WriteLine("The current bet is {0}. You can 'call', 'raise', or 'fold'. You have {1} chips.", currentBet, currentChipCount);
+                Console.WriteLine("The current bet is {0}. You can 'call', 'raise [num]', go 'all-in', or 'fold'. You have {1} chips.", currentBet, currentChipCount);
                 do
                 {
-                    string actionChoice = Console.ReadLine().ToLower();
-                    switch (actionChoice)
+                    string[] actionChoiceArr = Regex.Split(Console.ReadLine().ToLower(), " ");
+                    try
                     {
-                        case "call":
-                            
-                            if (currentBet > currentChipCount)
-                            {
-                                // The Player cannot afford to match the current bet. Go all-in
-                                betChoice = new BetChoice(BetChoice.BetActions.Call, currentChipCount);
-                            }
-                            else
-                            {
-                                // The Player can afford to match the current bet
-                                betChoice = new BetChoice(BetChoice.BetActions.Call, currentBet);
-                            }
-                            break;
-                        case "raise":
-                            Console.WriteLine("How much would you like to raise? (positive integer or 'all-in')");
-                            do
-                            {
+                        switch (actionChoiceArr[0])
+                        {
+                            case "call":
+                                if (currentBet > currentChipCount)
+                                {
+                                    // The Player cannot afford to match the current bet. Go all-in
+                                    betChoice = new BetChoice(BetChoice.BetActions.Call, currentChipCount);
+                                }
+                                else
+                                {
+                                    // The Player can afford to match the current bet
+                                    betChoice = new BetChoice(BetChoice.BetActions.Call, currentBet);
+                                }
+                                break;
+                            case "raise":
                                 try
                                 {
-                                    string betAmountString = Console.ReadLine().ToLower();
-                                    if (betAmountString == "all-in")
+                                    // Player specified amount to raise by "raise {number}"
+                                    bool isPreSpecRaiseNumInvalid = false;
+                                    do
                                     {
-                                        betAmount = currentChipCount;
-                                    }
-                                    else
-                                    {
-                                        betAmount = Int32.Parse(betAmountString);
-                                        if (betAmount > currentChipCount)
+                                        if (!isPreSpecRaiseNumInvalid)
                                         {
-                                            // Player tried to bet more than they have available
-                                            Console.WriteLine("You cannot bet more chips than you have. You have {0} chips available.", currentChipCount);
-                                            betAmount = 0;
+                                            // Check Player's specified raise number normally
+                                            string betAmountString = actionChoiceArr[1];
+                                            try
+                                            {
+                                                betAmount = Int32.Parse(betAmountString);
+                                                if (betAmount > currentChipCount)
+                                                {
+                                                    // Player tried to bet more than they have available
+                                                    Console.WriteLine("You cannot bet more chips than you have. You have {0} chips available.", currentChipCount);
+                                                    isPreSpecRaiseNumInvalid = true;
+                                                    betAmount = 0;
+                                                }
+                                                else if (betAmount < 0)
+                                                {
+                                                    // Player tried to bet a negative amount of chips
+                                                    Console.WriteLine("You cannot bet a negative amount of chips.");
+                                                    isPreSpecRaiseNumInvalid = true;
+                                                    betAmount = 0;
+                                                }
+                                            }
+                                            catch (FormatException parseE)
+                                            {
+                                                Console.WriteLine("Please enter a valid positive integer.");
+                                                isPreSpecRaiseNumInvalid = true;
+                                            }
                                         }
-                                        else if (betAmount < 0)
+                                        else
                                         {
-                                            // Player tried to bet a negative amount of chips
-                                            Console.WriteLine("You cannot bet a negative amount of chips.");
-                                            betAmount = 0;
+                                            // Player's pre-specified raise num is invalid. Get new one from player
+                                            Console.WriteLine("How much would you like to raise? (positive integer or 'all-in')");
+                                            do
+                                            {
+                                                try
+                                                {
+                                                    string betAmountString = Console.ReadLine().ToLower();
+                                                    if (betAmountString == "all-in")
+                                                    {
+                                                        betAmount = currentChipCount;
+                                                    }
+                                                    else
+                                                    {
+                                                        betAmount = Int32.Parse(betAmountString);
+                                                        if (betAmount > currentChipCount)
+                                                        {
+                                                            // Player tried to bet more than they have available
+                                                            Console.WriteLine("You cannot bet more chips than you have. You have {0} chips available.", currentChipCount);
+                                                            betAmount = 0;
+                                                        }
+                                                        else if (betAmount < 0)
+                                                        {
+                                                            // Player tried to bet a negative amount of chips
+                                                            Console.WriteLine("You cannot bet a negative amount of chips.");
+                                                            betAmount = 0;
+                                                        }
+                                                    }
+                                                }
+                                                catch (FormatException parseE)
+                                                {
+                                                    Console.WriteLine("Please enter a valid positive integer.");
+                                                }
+                                            } while (betAmount == 0);
                                         }
-                                    }
+                                    } while (betAmount == 0);
                                 }
-                                catch (FormatException e)
+                                catch (IndexOutOfRangeException e)
                                 {
-                                    Console.WriteLine("Please enter a valid positive integer.");
+                                    // Player did not specify amount to raise by "raise {number}". Get number to raise from player
+                                    Console.WriteLine("How much would you like to raise? (positive integer or 'all-in')");
+                                    do
+                                    {
+                                        try
+                                        {
+                                            string betAmountString = Console.ReadLine().ToLower();
+                                            if (betAmountString == "all-in")
+                                            {
+                                                betAmount = currentChipCount;
+                                            }
+                                            else
+                                            {
+                                                betAmount = Int32.Parse(betAmountString);
+                                                if (betAmount > currentChipCount)
+                                                {
+                                                    // Player tried to bet more than they have available
+                                                    Console.WriteLine("You cannot bet more chips than you have. You have {0} chips available.", currentChipCount);
+                                                    betAmount = 0;
+                                                }
+                                                else if (betAmount < 0)
+                                                {
+                                                    // Player tried to bet a negative amount of chips
+                                                    Console.WriteLine("You cannot bet a negative amount of chips.");
+                                                    betAmount = 0;
+                                                }
+                                            }
+                                        }
+                                        catch (FormatException parseE)
+                                        {
+                                            Console.WriteLine("Please enter a valid positive integer.");
+                                        }
+                                    } while (betAmount == 0);
                                 }
-                            } while (betAmount == 0);
-                            if (betAmount > 0)
-                            {
-                                betChoice = new BetChoice(BetChoice.BetActions.Raise, betAmount);
-                            }
-                            else
-                            {
-                                betChoice = new BetChoice(BetChoice.BetActions.Check);
-                            }
-                            break;
-                        case "fold":
-                            betChoice = new BetChoice(BetChoice.BetActions.Fold);
-                            break;
-                        default:
-                            Console.WriteLine("Command unrecognized. You can 'call', 'raise', or 'fold'.");
-                            break;
+
+                                if (betAmount > 0)
+                                {
+                                    betChoice = new BetChoice(BetChoice.BetActions.Raise, betAmount);
+                                }
+                                else
+                                {
+                                    betChoice = new BetChoice(BetChoice.BetActions.Check);
+                                }
+                                break;
+                            case "fold":
+                                betChoice = new BetChoice(BetChoice.BetActions.Fold);
+                                break;
+                            case "all-in":
+                                betChoice = new BetChoice(BetChoice.BetActions.Raise, currentChipCount);
+                                break;
+                            default:
+                                Console.WriteLine("Command unrecognized. You can 'call', 'raise', or 'fold'.");
+                                break;
+                        }
+                    }
+                    catch (IndexOutOfRangeException e)
+                    {
+                        Console.WriteLine("Command unrecognized. You can 'call', 'raise [num]', or 'fold'.");
                     }
                 } while (betChoice == null);
             }

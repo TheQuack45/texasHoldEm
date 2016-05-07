@@ -70,9 +70,6 @@ namespace texasHoldEm
         {
             get { return _currentPot; }
         }
-
-        public delegate void BetReadyEventHandler(object sender, BetReadyEventArgs args);
-        public event BetReadyEventHandler BetReady;
         #endregion
 
         #region Constructors definition
@@ -137,13 +134,21 @@ namespace texasHoldEm
 
         private void GetNextBet(Player cPlayer)
         {
-            //OnBetReady(new BetReadyEventArgs(cPlayer, this.CurrentBet));
             BetChoice returnedBet = cPlayer.MakeBet(this.CurrentBet);
             if (returnedBet.BetAction == BetChoice.BetActions.Raise)
             {
                 // Currently betting Player raised
-                this._currentBet = returnedBet.BetAmount;
-                this._currentPot += returnedBet.BetAmount;
+                if (returnedBet.BetAmount >= this.CurrentBet)
+                {
+                    // Player could match or beat the current bet. Set CurrentBet to the bet made by the Player.
+                    this._currentBet = returnedBet.BetAmount;
+                    this._currentPot += returnedBet.BetAmount;
+                }
+                else
+                {
+                    // Player could not match the current bet. Leave CurrentBet as it was
+                    this._currentPot += returnedBet.BetAmount;
+                }
             }
             else if (returnedBet.BetAction == BetChoice.BetActions.Call)
             {
@@ -155,14 +160,6 @@ namespace texasHoldEm
                 // Currently betting Played folded
                 // Add to this round's folded Players list
                 this.FoldedPlayerList.Add(cPlayer);
-            }
-        }
-
-        protected virtual void OnBetReady(BetReadyEventArgs args)
-        {
-            if (BetReady != null)
-            {
-                BetReady(this, args);
             }
         }
         #endregion
