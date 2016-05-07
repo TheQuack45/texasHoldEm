@@ -70,6 +70,18 @@ namespace texasHoldEm
         {
             get { return _currentPot; }
         }
+
+        private Player _humanPlayer;
+        public Player HumanPlayer
+        {
+            get { return _humanPlayer; }
+        }
+
+        private Computer _computerPlayer;
+        public Computer ComputerPlayer
+        {
+            get { return _computerPlayer; }
+        }
         #endregion
 
         #region Constructors definition
@@ -97,6 +109,17 @@ namespace texasHoldEm
                 {
                     // Player object is not registered to a Game
                     cPlayer.RegisterGame(this);
+                }
+
+                if (cPlayer is Computer)
+                {
+                    // This is the Computer player object
+                    this._computerPlayer = (Computer)cPlayer;
+                }
+                else
+                {
+                    // This is the human Player object
+                    this._humanPlayer = cPlayer;
                 }
             }
         }

@@ -163,6 +163,11 @@ namespace texasHoldEm
 
             return;
         }
+
+        public string GetName()
+        {
+            return (this.Pos + " of " + this.Suit);
+        }
         #endregion
     }
 }

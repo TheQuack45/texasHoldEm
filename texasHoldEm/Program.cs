@@ -16,6 +16,13 @@ namespace texasHoldEm
             //Computer testComputer = new Computer(pokerGame);
             pokerGame.AddPlayer(humanPlayer);
             pokerGame.DistributeHands();
+            Console.WriteLine("Your current hand is:");
+            foreach (Card cCard in pokerGame.HumanPlayer.CurrentHand)
+            {
+                // Go through each Card in human Player's hand
+                Console.WriteLine(cCard.GetName());
+            }
+            Console.WriteLine("");
             pokerGame.PlayBettingRound();
 
             Console.ReadKey();
@@ -34,7 +41,6 @@ namespace texasHoldEm
             
             if (currentBet == 0)
             {
-                // TODO: Allow player to specify "raise {number}" or "all-in" and automatically raise by the number specified or go all in
                 // There is no current bet. Player cannot call
                 Console.WriteLine("The current bet is {0}. You can 'check', 'raise [num]', go 'all-in', or 'fold'. You have {1} chips.", currentBet, currentChipCount);
                 do
