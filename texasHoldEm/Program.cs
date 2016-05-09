@@ -60,8 +60,14 @@ namespace texasHoldEm
             Console.WriteLine("");
 
             // Decide winner
-            Console.WriteLine("Is there a pair in the human player's hand/the community cards?");
-            Console.WriteLine(pokerGame.CheckOnePair(humanPlayer));
+            Console.WriteLine("List of cards ordered by position:");
+            List<Card> concatList = humanPlayer.CurrentHand.Concat<Card>(pokerGame.CommunityCards).ToList<Card>();
+            CardHand handType = pokerGame.FindHandType(concatList);
+            Console.WriteLine(handType.HandType.ToString());
+            foreach (Card cCard in handType.RelevantCards)
+            {
+                Console.WriteLine(cCard.GetName());
+            }
 
             Console.ReadKey();
         }

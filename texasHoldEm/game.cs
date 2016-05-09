@@ -274,13 +274,103 @@ namespace texasHoldEm
         }
 
         /// <summary>
-        /// Use Quicksort algorithm 
+        /// Use List.OrderBy to sort the list based on rank
         /// </summary>
         /// <param name="cardList"></param>
         /// <returns></returns>
         public List<Card> SortByPos(List<Card> cardList)
         {
-            
+            List<Card> orderedList = cardList.OrderBy(cCard => HoldEmRanks[cCard.Pos]).ToList<Card>();
+            return orderedList;
+        }
+
+        public List<Card> SortBySuit(List<Card> cardList)
+        {
+            throw new NotImplementedException();
+        }
+
+        public CardHand FindHandType(List<Card> cardList)
+        {
+            if (cardList.Count != 7)
+            {
+                // The list given is not the correct size
+                throw new ArgumentException("The List<Card> given was not the correct size (7 cards).", "cardList");
+            }
+            CardHand hand = new CardHand();
+            List<Card> posSortedCards = this.SortByPos(cardList);
+            //List<Card> suitSortedCards = this.SortBySuit(cardList);
+
+            hand = this.CheckCombos(posSortedCards);
+
+            return hand;
+        }
+
+        public CardHand CheckCombos(List<Card> sortedCardList)
+        {
+            CardHand cardHand = new CardHand();
+            Card prevCard = null;
+
+            for (int i = 0; i < sortedCardList.Count; i++)
+            {
+                try
+                {
+                    if (prevCard.Pos == sortedCardList[i].Pos)
+                    {
+                        // One pair
+                        cardHand.RelevantCards.Add(prevCard);
+                        cardHand.RelevantCards.Add(sortedCardList[i]);
+                        if (sortedCardList[i + 1].Pos == sortedCardList[i].Pos)
+                        {
+                            // Three of a kind
+                            cardHand.RelevantCards.Add(sortedCardList[i + 1]);
+                            if (sortedCardList[i + 2].Pos == sortedCardList[i].Pos)
+                            {
+                                // Four of a kind
+                                cardHand.RelevantCards.Add(sortedCardList[i + 2]);
+                                cardHand.HandType = CardHand.HandTypes.FourOfAKind;
+                                break;
+                            }
+                            cardHand.HandType = CardHand.HandTypes.ThreeOfAKind;
+                            prevCard = sortedCardList[i + 2];
+                            i += 3;
+                            continue;
+                        }
+
+                        if (cardHand.HandType == CardHand.HandTypes.ThreeOfAKind)
+                        {
+                            // Full house
+                            cardHand.HandType = CardHand.HandTypes.FullHouse;
+                            cardHand.RelevantCards.Add(prevCard);
+                            cardHand.RelevantCards.Add(sortedCardList[i]);
+                            break;
+                        }
+                        else if (cardHand.HandType == CardHand.HandTypes.OnePair)
+                        {
+                            // Two pair
+                            cardHand.HandType = CardHand.HandTypes.TwoPair;
+                            cardHand.RelevantCards.Add(prevCard);
+                            cardHand.RelevantCards.Add(sortedCardList[i]);
+                            break;
+                        }
+
+                        cardHand.HandType = CardHand.HandTypes.OnePair;
+                    }
+                    prevCard = sortedCardList[i];
+                }
+                catch (NullReferenceException e)
+                {
+                    prevCard = sortedCardList[i];
+                    continue;
+                }
+            }
+
+            if (cardHand.RelevantCards.Count == 0)
+            {
+                cardHand.HandType = CardHand.HandTypes.HighCard;
+                cardHand.RelevantCards.Add(sortedCardList[sortedCardList.Count - 1]);
+            }
+
+            return cardHand;
         }
 
         /// <summary>
@@ -288,21 +378,31 @@ namespace texasHoldEm
         /// </summary>
         /// <param name="cPlayer">Player object to check hand of</param>
         /// <returns>True if there is a pair, false if there is not</returns>
-        public List<Card> CheckOnePair(Player cPlayer)
+        public bool CheckOnePair(List<Card> sortedCardList, out List<Card> pairSet)
         {
-            foreach (string cRank in HoldEmRanksList) {
-                List<Card> pairCards = (from Card cCard in cPlayer.CurrentHand.ToList<Card>().Concat<Card>(this.CommunityCards.ToList<Card>())
-                                        where cCard.Pos == cRank
-                                        select cCard).ToList<Card>();
+            pairSet = new List<Card>();
+            Card prevCard = null;
 
-                if (pairCards.Count == 2)
+            for (int i = 0; i < sortedCardList.Count; i++)
+            {
+                try
                 {
-                    // There is a pair
-                    return pairCards;
+                    if (prevCard.Pos == sortedCardList[i].Pos)
+                    {
+                        pairSet.Add(prevCard);
+                        pairSet.Add(sortedCardList[i]);
+                    }
+                }
+                catch (NullReferenceException e)
+                {
+                    continue;
                 }
             }
 
-            return null;
+            if (pairSet.Count > 0)
+                return true;
+            else
+                return false;
         }
         #endregion
     }

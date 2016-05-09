@@ -43,6 +43,7 @@
   <ItemGroup>
     <Compile Include="BetChoice.cs" />
     <Compile Include="Card.cs" />
+    <Compile Include="CardHand.cs" />
     <Compile Include="Computer.cs" />
     <Compile Include="Deck.cs" />
     <Compile Include="DeckEmptyException.cs" />
