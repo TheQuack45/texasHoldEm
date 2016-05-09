@@ -79,8 +79,6 @@ namespace texasHoldEm
 
                 this._registeredGame = gameToRegister;
                 this.SetHandSize(gameToRegister.GameType);
-
-                //gameToRegister.BetReady += new Game.BetReadyEventHandler(this.MakeBet);
             }
             else
             {

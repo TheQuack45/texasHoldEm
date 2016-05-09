@@ -9,6 +9,23 @@ namespace texasHoldEm
     class Game
     {
         #region Static members definition
+        public static readonly List<string> HoldEmRanksList = new List<string>()
+        {
+            "2",
+            "3",
+            "4",
+            "5",
+            "6",
+            "7",
+            "8",
+            "9",
+            "10",
+            "Jack",
+            "Queen",
+            "King",
+            "Ace",
+        };
+
         public static readonly Dictionary<string, int> HoldEmRanks = new Dictionary<string, int>()
         {
             {"2", 1},
@@ -156,7 +173,7 @@ namespace texasHoldEm
         }
 
         /// <summary>
-        /// Run through a round of betting, going to each unfolded Player and receive bets
+        /// Run through a round of betting: go to each unfolded Player and receive bets
         /// </summary>
         public void PlayBettingRound()
         {
@@ -173,6 +190,10 @@ namespace texasHoldEm
             this._currentBet = 0;
         }
 
+        /// <summary>
+        /// Gets bet from cPlayer object and applies it to the game's current situation
+        /// </summary>
+        /// <param name="cPlayer">The Player to get a bet from</param>
         private void GetNextBet(Player cPlayer)
         {
             BetChoice returnedBet = cPlayer.MakeBet(this.CurrentBet);
@@ -250,6 +271,38 @@ namespace texasHoldEm
         public void DrawRiver()
         {
             this.CommunityCards[4] = this.CardDeck.DrawCard();
+        }
+
+        /// <summary>
+        /// Use Quicksort algorithm 
+        /// </summary>
+        /// <param name="cardList"></param>
+        /// <returns></returns>
+        public List<Card> SortByPos(List<Card> cardList)
+        {
+            
+        }
+
+        /// <summary>
+        /// Check if there is a pair between this Game's community cards and the Player's hand
+        /// </summary>
+        /// <param name="cPlayer">Player object to check hand of</param>
+        /// <returns>True if there is a pair, false if there is not</returns>
+        public List<Card> CheckOnePair(Player cPlayer)
+        {
+            foreach (string cRank in HoldEmRanksList) {
+                List<Card> pairCards = (from Card cCard in cPlayer.CurrentHand.ToList<Card>().Concat<Card>(this.CommunityCards.ToList<Card>())
+                                        where cCard.Pos == cRank
+                                        select cCard).ToList<Card>();
+
+                if (pairCards.Count == 2)
+                {
+                    // There is a pair
+                    return pairCards;
+                }
+            }
+
+            return null;
         }
         #endregion
     }

@@ -25,32 +25,43 @@ namespace texasHoldEm
             }
             Console.WriteLine("");
 
+            Console.WriteLine("The current pot is {0}.", pokerGame.CurrentPot);
             pokerGame.PlayBettingRound();
             Console.WriteLine("");
 
+            // The flop
             pokerGame.DrawFlop();
             Console.WriteLine("The flop has been drawn. The community cards are:");
             DispCommunityCards(pokerGame);
             Console.WriteLine("");
 
+            Console.WriteLine("The current pot is {0}.", pokerGame.CurrentPot);
             pokerGame.PlayBettingRound();
             Console.WriteLine("");
 
+            // The turn
             pokerGame.DrawTurn();
             Console.WriteLine("The turn has been drawn. The community cards are:");
             DispCommunityCards(pokerGame);
             Console.WriteLine("");
 
+            Console.WriteLine("The current pot is {0}.", pokerGame.CurrentPot);
             pokerGame.PlayBettingRound();
             Console.WriteLine("");
-
+            
+            // The river
             pokerGame.DrawRiver();
             Console.WriteLine("The river has been drawn. The community cards are:");
             DispCommunityCards(pokerGame);
             Console.WriteLine("");
 
+            Console.WriteLine("The current pot is {0}.", pokerGame.CurrentPot);
             pokerGame.PlayBettingRound();
             Console.WriteLine("");
+
+            // Decide winner
+            Console.WriteLine("Is there a pair in the human player's hand/the community cards?");
+            Console.WriteLine(pokerGame.CheckOnePair(humanPlayer));
 
             Console.ReadKey();
         }

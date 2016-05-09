@@ -30,5 +30,14 @@ namespace texasHoldEm
 
             return new string(outputCharArr);
         }
+
+        public static List<Card> Swap(List<Card> list, int iA, int iB)
+        {
+            Card tmp = list[iA];
+            list[iA] = list[iB];
+            list[iB] = tmp;
+
+            return list;
+        }
     }
 }
