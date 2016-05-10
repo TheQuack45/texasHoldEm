@@ -309,6 +309,7 @@ namespace texasHoldEm
         {
             CardHand cardHand = new CardHand();
             Card prevCard = null;
+            int straightSize = 1;
 
             for (int i = 0; i < sortedCardList.Count; i++)
             {
@@ -319,7 +320,7 @@ namespace texasHoldEm
                         // One pair
                         cardHand.RelevantCards.Add(prevCard);
                         cardHand.RelevantCards.Add(sortedCardList[i]);
-                        if (sortedCardList[i + 1].Pos == sortedCardList[i].Pos)
+                        if (i != sortedCardList.Count - 1 && sortedCardList[i + 1].Pos == sortedCardList[i].Pos)
                         {
                             // Three of a kind
                             cardHand.RelevantCards.Add(sortedCardList[i + 1]);
@@ -328,6 +329,13 @@ namespace texasHoldEm
                                 // Four of a kind
                                 cardHand.RelevantCards.Add(sortedCardList[i + 2]);
                                 cardHand.HandType = CardHand.HandTypes.FourOfAKind;
+                                break;
+                            }
+
+                            if (cardHand.HandType == CardHand.HandTypes.OnePair)
+                            {
+                                // Full house
+                                cardHand.HandType = CardHand.HandTypes.FullHouse;
                                 break;
                             }
                             cardHand.HandType = CardHand.HandTypes.ThreeOfAKind;
@@ -355,12 +363,29 @@ namespace texasHoldEm
 
                         cardHand.HandType = CardHand.HandTypes.OnePair;
                     }
+                    else if (HoldEmRanks[prevCard.Pos] == HoldEmRanks[sortedCardList[i].Pos] - 1)
+                    {
+                        straightSize++;
+                        if (straightSize == 5)
+                        {
+                            // Straight
+                            cardHand.HandType = CardHand.HandTypes.Straight;
+                            for (int j = i; j >= 0; j--)
+                                cardHand.RelevantCards.Add(sortedCardList[i]);
+                            break;
+                        }
+                    }
                     prevCard = sortedCardList[i];
                 }
                 catch (NullReferenceException e)
                 {
                     prevCard = sortedCardList[i];
                     continue;
+                }
+                catch (FormatException e)
+                {
+                    // TODO: error handling
+                    throw e;
                 }
             }
 
