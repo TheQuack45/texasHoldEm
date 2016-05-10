@@ -250,6 +250,7 @@ namespace texasHoldEm
         /// </summary>
         public void DrawFlop()
         {
+            this.CardDeck.DrawCard();
             for (int i = 0; i < 3; i++)
             {
                 // Loop three times and draw a card each time for the flop
@@ -262,6 +263,7 @@ namespace texasHoldEm
         /// </summary>
         public void DrawTurn()
         {
+            this.CardDeck.DrawCard();
             this.CommunityCards[3] = this.CardDeck.DrawCard();
         }
 
@@ -270,6 +272,7 @@ namespace texasHoldEm
         /// </summary>
         public void DrawRiver()
         {
+            this.CardDeck.DrawCard();
             this.CommunityCards[4] = this.CardDeck.DrawCard();
         }
 
@@ -286,7 +289,8 @@ namespace texasHoldEm
 
         public List<Card> SortBySuit(List<Card> cardList)
         {
-            throw new NotImplementedException();
+            List<Card> orderedList = cardList.OrderBy(cCard => cCard.Suit).ToList<Card>();
+            return orderedList;
         }
 
         public CardHand FindHandType(List<Card> cardList)
@@ -298,23 +302,78 @@ namespace texasHoldEm
             }
             CardHand hand = new CardHand();
             List<Card> posSortedCards = this.SortByPos(cardList);
-            //List<Card> suitSortedCards = this.SortBySuit(cardList);
+            List<Card> suitSortedCards = this.SortBySuit(cardList);
 
             hand = this.CheckCombos(posSortedCards);
+            hand.IsFlush = this.CheckFlush(suitSortedCards);
 
             return hand;
+        }
+
+        public bool CheckFlush(List<Card> sortedCardList)
+        {
+            Card prevCard = null;
+            bool isFlush = false;
+            int flushSize = 0;
+
+            for (int i = 0; i < sortedCardList.Count; i++)
+            {
+                try
+                {
+                    if (sortedCardList[i].Suit == prevCard.Suit)
+                    {
+                        flushSize++;
+                        if (flushSize >= 5)
+                        {
+                            isFlush = true;
+                            break;
+                        }
+                    }
+                    prevCard = sortedCardList[i];
+                }
+                catch (NullReferenceException e)
+                {
+                    prevCard = sortedCardList[i];
+                }
+            }
+
+            return isFlush;
         }
 
         public CardHand CheckCombos(List<Card> sortedCardList)
         {
             CardHand cardHand = new CardHand();
             Card prevCard = null;
-            int straightSize = 1;
+            int straightSize = 0;
 
             for (int i = 0; i < sortedCardList.Count; i++)
             {
+                // TODO: All checks get the lowest hands possible except for High Card
+                // Try reversing order of input sorted list?
+                // Would need to modify line 356 in that case
                 try
                 {
+                    if (HoldEmRanks[prevCard.Pos] == HoldEmRanks[sortedCardList[i].Pos] - 1)
+                    {
+                        // TODO: Straight checking gets the lowest straight rather than the highest straight
+                        straightSize++;
+                        if (straightSize == 5)
+                        {
+                            // Straight
+                            cardHand.HandType = CardHand.HandTypes.Straight;
+                            for (int j = i - 1; j >= (i - 5); j--)
+                            {
+                                cardHand.RelevantCards.Add(sortedCardList[j]);
+                            }
+                        }
+                    }
+                    else
+                    {
+                        // Straight has ended
+                        // Reset straightSize
+                        straightSize = 0;
+                    }
+
                     if (prevCard.Pos == sortedCardList[i].Pos)
                     {
                         // One pair
@@ -363,18 +422,7 @@ namespace texasHoldEm
 
                         cardHand.HandType = CardHand.HandTypes.OnePair;
                     }
-                    else if (HoldEmRanks[prevCard.Pos] == HoldEmRanks[sortedCardList[i].Pos] - 1)
-                    {
-                        straightSize++;
-                        if (straightSize == 5)
-                        {
-                            // Straight
-                            cardHand.HandType = CardHand.HandTypes.Straight;
-                            for (int j = i; j >= 0; j--)
-                                cardHand.RelevantCards.Add(sortedCardList[i]);
-                            break;
-                        }
-                    }
+                    
                     prevCard = sortedCardList[i];
                 }
                 catch (NullReferenceException e)
@@ -396,38 +444,6 @@ namespace texasHoldEm
             }
 
             return cardHand;
-        }
-
-        /// <summary>
-        /// Check if there is a pair between this Game's community cards and the Player's hand
-        /// </summary>
-        /// <param name="cPlayer">Player object to check hand of</param>
-        /// <returns>True if there is a pair, false if there is not</returns>
-        public bool CheckOnePair(List<Card> sortedCardList, out List<Card> pairSet)
-        {
-            pairSet = new List<Card>();
-            Card prevCard = null;
-
-            for (int i = 0; i < sortedCardList.Count; i++)
-            {
-                try
-                {
-                    if (prevCard.Pos == sortedCardList[i].Pos)
-                    {
-                        pairSet.Add(prevCard);
-                        pairSet.Add(sortedCardList[i]);
-                    }
-                }
-                catch (NullReferenceException e)
-                {
-                    continue;
-                }
-            }
-
-            if (pairSet.Count > 0)
-                return true;
-            else
-                return false;
         }
         #endregion
     }

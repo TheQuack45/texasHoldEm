@@ -9,7 +9,7 @@ namespace texasHoldEm
 {
     class Program
     {
-        static void Main(string[] args)
+        static void FalseMain(string[] args)
         {
             Game pokerGame = new Game(Game.PossibleGames.TexasHoldEm);
             pokerGame.BetMade += new Game.BetMadeEventHandler(InformBetAction);
@@ -60,11 +60,32 @@ namespace texasHoldEm
             Console.WriteLine("");
 
             // Decide winner
-            Console.WriteLine("List of cards ordered by position:");
             List<Card> concatList = humanPlayer.CurrentHand.Concat<Card>(pokerGame.CommunityCards).ToList<Card>();
             CardHand handType = pokerGame.FindHandType(concatList);
             Console.WriteLine(handType.HandType.ToString());
             foreach (Card cCard in handType.RelevantCards)
+            {
+                Console.WriteLine(cCard.GetName());
+            }
+            Console.WriteLine("Is flush: {0}", handType.IsFlush);
+
+            Console.ReadKey();
+        }
+
+        public static void Main(string[] args)
+        {
+            Console.WriteLine("Which cards to check?");
+            List<Card> cardList = new List<Card>();
+            for (int i = 0; i < 7; i++)
+            {
+                string tmp = Console.ReadLine();
+                cardList.Add(new Card(Regex.Split(tmp, " of ")[0], Regex.Split(tmp, " of ")[1]));
+            }
+            Game testGame = new Game(Game.PossibleGames.TexasHoldEm);
+            CardHand outHand = testGame.CheckCombos(testGame.SortByPos(cardList));
+
+            Console.WriteLine("outHand type: {0}", outHand.HandType);
+            foreach (Card cCard in outHand.RelevantCards)
             {
                 Console.WriteLine(cCard.GetName());
             }
