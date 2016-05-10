@@ -312,6 +312,7 @@ namespace texasHoldEm
 
         public bool CheckFlush(List<Card> sortedCardList)
         {
+            // TODO: Flush check does not work
             Card prevCard = null;
             bool isFlush = false;
             int flushSize = 0;

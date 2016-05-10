@@ -85,6 +85,7 @@ namespace texasHoldEm
             CardHand outHand = testGame.CheckCombos(testGame.SortByPos(cardList));
 
             Console.WriteLine("outHand type: {0}", outHand.HandType);
+            Console.WriteLine("Is flush: {0}", testGame.CheckFlush(testGame.SortBySuit(cardList)));
             foreach (Card cCard in outHand.RelevantCards)
             {
                 Console.WriteLine(cCard.GetName());
