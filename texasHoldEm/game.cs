@@ -330,6 +330,10 @@ namespace texasHoldEm
                             break;
                         }
                     }
+                    else
+                    {
+                        flushSize = 0;
+                    }
                     prevCard = sortedCardList[i];
                 }
                 catch (NullReferenceException e)
