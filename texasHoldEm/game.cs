@@ -283,7 +283,7 @@ namespace texasHoldEm
         /// <returns></returns>
         public List<Card> SortByPos(List<Card> cardList)
         {
-            List<Card> orderedList = cardList.OrderBy(cCard => HoldEmRanks[cCard.Pos]).ToList<Card>();
+            List<Card> orderedList = cardList.OrderByDescending(cCard => HoldEmRanks[cCard.Pos]).ToList<Card>();
             return orderedList;
         }
 
@@ -324,7 +324,7 @@ namespace texasHoldEm
                     if (sortedCardList[i].Suit == prevCard.Suit)
                     {
                         flushSize++;
-                        if (flushSize >= 5)
+                        if (flushSize >= 4)
                         {
                             isFlush = true;
                             break;
@@ -349,14 +349,10 @@ namespace texasHoldEm
 
             for (int i = 0; i < sortedCardList.Count; i++)
             {
-                // TODO: All checks get the lowest hands possible except for High Card
-                // Try reversing order of input sorted list?
-                // Would need to modify line 356 in that case
                 try
                 {
-                    if (HoldEmRanks[prevCard.Pos] == HoldEmRanks[sortedCardList[i].Pos] - 1)
+                    if (HoldEmRanks[prevCard.Pos] == HoldEmRanks[sortedCardList[i].Pos] + 1)
                     {
-                        // TODO: Straight checking gets the lowest straight rather than the highest straight
                         straightSize++;
                         if (straightSize == 5)
                         {
@@ -441,7 +437,7 @@ namespace texasHoldEm
             if (cardHand.RelevantCards.Count == 0)
             {
                 cardHand.HandType = CardHand.HandTypes.HighCard;
-                cardHand.RelevantCards.Add(sortedCardList[sortedCardList.Count - 1]);
+                cardHand.RelevantCards.Add(sortedCardList[0]);
             }
 
             return cardHand;
