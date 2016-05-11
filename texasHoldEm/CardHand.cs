@@ -9,7 +9,7 @@ namespace texasHoldEm
     class CardHand
     {
         #region Static members definition
-        public enum HandTypes { HighCard, OnePair, TwoPair, ThreeOfAKind, Straight, FullHouse, FourOfAKind };
+        public enum HandTypes { HighCard, OnePair, TwoPair, ThreeOfAKind, Straight, Flush, FullHouse, FourOfAKind, StraightFlush };
         #endregion
 
         #region Members definition
@@ -64,6 +64,18 @@ namespace texasHoldEm
             this._handType = handType;
             this._relevantCards = relevantCards;
             this._isFlush = isFlush;
+        }
+        #endregion
+
+        #region Methods definition
+        /// <summary>
+        /// Return highest ranked card of given hand's RelevantCards
+        /// </summary>
+        /// <returns>Card object with highest rank</returns>
+        public Card GetHigh()
+        {
+            // insert joke about 4/20
+            return this.RelevantCards.OrderByDescending(cCard => cCard.Pos).ToList<Card>()[0];
         }
         #endregion
     }

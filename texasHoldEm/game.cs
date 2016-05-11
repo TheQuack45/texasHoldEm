@@ -277,22 +277,32 @@ namespace texasHoldEm
         }
 
         /// <summary>
-        /// Use List.OrderBy to sort the list based on rank
+        /// Use List.OrderBy to sort the given list based on rank
         /// </summary>
-        /// <param name="cardList"></param>
-        /// <returns></returns>
+        /// <param name="cardList">List to sort</param>
+        /// <returns>List sorted by rank</returns>
         public List<Card> SortByPos(List<Card> cardList)
         {
             List<Card> orderedList = cardList.OrderByDescending(cCard => HoldEmRanks[cCard.Pos]).ToList<Card>();
             return orderedList;
         }
 
+        /// <summary>
+        /// Use List.OrderBy to sort the given list based on suit
+        /// </summary>
+        /// <param name="cardList">List to sort</param>
+        /// <returns>List sorted by suit</returns>
         public List<Card> SortBySuit(List<Card> cardList)
         {
             List<Card> orderedList = cardList.OrderBy(cCard => cCard.Suit).ToList<Card>();
             return orderedList;
         }
 
+        /// <summary>
+        /// Returns a CardHand object containing info on the hand of the given cardList.
+        /// </summary>
+        /// <param name="cardList">List&lt;Card&gt;, preferably unsorted</param>
+        /// <returns>CardHand object with handType property set to the hand</returns>
         public CardHand FindHandType(List<Card> cardList)
         {
             if (cardList.Count != 7)
@@ -307,15 +317,37 @@ namespace texasHoldEm
             hand = this.CheckCombos(posSortedCards);
             hand.IsFlush = this.CheckFlush(suitSortedCards);
 
+            if (hand.HandType == CardHand.HandTypes.Straight && hand.IsFlush)
+            {
+                // Hand may be straight flush
+                if (this.CheckFlush(hand.RelevantCards))
+                {
+                    // Hand is straight flush
+                    hand.HandType = CardHand.HandTypes.StraightFlush;
+                    hand.RelevantCards = this.GetFlushCards(suitSortedCards);
+                }
+            }
+            
+            if (hand.IsFlush && ((int)CardHand.HandTypes.Flush > (int)hand.HandType))
+            {
+                // If hand is a flush and Flush is a better hand type than what is currently set, change hand type to Flush and change RelevantCards
+                hand.HandType = CardHand.HandTypes.Flush;
+                hand.RelevantCards = this.GetFlushCards(suitSortedCards);
+            }
+
             return hand;
         }
 
+        /// <summary>
+        /// Checks if the given hand (sortedCardList, sorted by suit) is a flush.
+        /// </summary>
+        /// <param name="sortedCardList">List&lt;Card&gt; sorted by suit</param>
+        /// <returns>True if hand is a flush, false if not</returns>
         public bool CheckFlush(List<Card> sortedCardList)
         {
-            // TODO: Flush check does not work
             Card prevCard = null;
             bool isFlush = false;
-            int flushSize = 0;
+            int flushSize = 1;
 
             for (int i = 0; i < sortedCardList.Count; i++)
             {
@@ -324,7 +356,7 @@ namespace texasHoldEm
                     if (sortedCardList[i].Suit == prevCard.Suit)
                     {
                         flushSize++;
-                        if (flushSize >= 4)
+                        if (flushSize == 5)
                         {
                             isFlush = true;
                             break;
@@ -332,7 +364,7 @@ namespace texasHoldEm
                     }
                     else
                     {
-                        flushSize = 0;
+                        flushSize = 1;
                     }
                     prevCard = sortedCardList[i];
                 }
@@ -345,11 +377,57 @@ namespace texasHoldEm
             return isFlush;
         }
 
+        /// <summary>
+        /// Gets the cards on the given list that are part of a flush.
+        /// </summary>
+        /// <param name="sortedCardList">List&lt;Card&gt; sorted by suit</param>
+        /// <returns>List&lt;Card&gt; with flush cards inside. Returns empty list if there is no flush</returns>
+        public List<Card> GetFlushCards(List<Card> sortedCardList)
+        {
+            List<Card> flushList = new List<Card>();
+            Card prevCard = null;
+            int flushSize = 1;
+
+            for (int i = 0; i < sortedCardList.Count; i++)
+            {
+                try
+                {
+                    if (sortedCardList[i].Suit == prevCard.Suit)
+                    {
+                        flushSize++;
+                        if (flushSize >= 5)
+                        {
+                            for (int j = i; j >= (i - 4); j--)
+                                flushList.Add(sortedCardList[j]);
+                            break;
+                        }
+                    }
+                    else
+                    {
+                        flushSize = 1;
+                        flushList.Clear();
+                    }
+                    prevCard = sortedCardList[i];
+                }
+                catch (NullReferenceException e)
+                {
+                    prevCard = sortedCardList[i];
+                }
+            }
+
+            return flushList;
+        }
+
+        /// <summary>
+        /// Checks whether hand given (List&lt;Card&gt; sorted by Pos (rank)) is a straight, one pair, two pair, etc.
+        /// </summary>
+        /// <param name="sortedCardList">List&lt;Card&gt; sorted by Pos</param>
+        /// <returns>CardHand object containing hand type and relevant cards</returns>
         public CardHand CheckCombos(List<Card> sortedCardList)
         {
             CardHand cardHand = new CardHand();
             Card prevCard = null;
-            int straightSize = 0;
+            int straightSize = 1;
 
             for (int i = 0; i < sortedCardList.Count; i++)
             {
@@ -362,17 +440,16 @@ namespace texasHoldEm
                         {
                             // Straight
                             cardHand.HandType = CardHand.HandTypes.Straight;
-                            for (int j = i - 1; j >= (i - 5); j--)
-                            {
+                            for (int j = i - 1; j >= (i - 4); j--)
                                 cardHand.RelevantCards.Add(sortedCardList[j]);
-                            }
+                            cardHand.RelevantCards.Add(sortedCardList[i]);
                         }
                     }
                     else
                     {
                         // Straight has ended
                         // Reset straightSize
-                        straightSize = 0;
+                        straightSize = 1;
                     }
 
                     if (prevCard.Pos == sortedCardList[i].Pos)
@@ -433,8 +510,7 @@ namespace texasHoldEm
                 }
                 catch (FormatException e)
                 {
-                    // TODO: error handling
-                    throw e;
+                    throw new StupidityException("This is why you use an enum on card rank and suit. If this ever gets thrown, it's time to REFACTOR!");
                 }
             }
 

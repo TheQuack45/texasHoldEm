@@ -72,6 +72,10 @@ namespace texasHoldEm
             Console.ReadKey();
         }
 
+        /// <summary>
+        /// DEBUG method: Alternative Main() that allows manual checking of input hands
+        /// </summary>
+        /// <param name="args"></param>
         public static void Main(string[] args)
         {
             Console.WriteLine("Which cards to check?");
@@ -82,10 +86,9 @@ namespace texasHoldEm
                 cardList.Add(new Card(Regex.Split(tmp, " of ")[0], Regex.Split(tmp, " of ")[1]));
             }
             Game testGame = new Game(Game.PossibleGames.TexasHoldEm);
-            CardHand outHand = testGame.CheckCombos(testGame.SortByPos(cardList));
+            CardHand outHand = testGame.FindHandType(testGame.SortByPos(cardList));
 
             Console.WriteLine("outHand type: {0}", outHand.HandType);
-            Console.WriteLine("Is flush: {0}", testGame.CheckFlush(testGame.SortBySuit(cardList)));
             foreach (Card cCard in outHand.RelevantCards)
             {
                 Console.WriteLine(cCard.GetName());
