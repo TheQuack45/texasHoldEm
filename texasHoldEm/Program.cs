@@ -9,65 +9,74 @@ namespace texasHoldEm
 {
     class Program
     {
-        static void FalseMain(string[] args)
+        static void Main(string[] args)
         {
+            string playerResponse = "";
+
             Game pokerGame = new Game(Game.PossibleGames.TexasHoldEm);
             pokerGame.BetMade += new Game.BetMadeEventHandler(InformBetAction);
             Player humanPlayer = new Player(pokerGame, "Human");
             //Computer testComputer = new Computer(pokerGame);
             pokerGame.AddPlayer(humanPlayer);
-            pokerGame.DistributeHands();
-            Console.WriteLine("Your current hand is:");
-            foreach (Card cCard in pokerGame.HumanPlayer.CurrentHand)
+
+            do
             {
-                // Go through each Card in human Player's hand
-                Console.WriteLine(cCard.GetName());
-            }
-            Console.WriteLine("");
+                pokerGame.CardDeck.Shuffle();
+                pokerGame.DistributeHands();
+                Console.WriteLine("Your current hand is:");
+                foreach (Card cCard in pokerGame.HumanPlayer.CurrentHand)
+                {
+                    // Go through each Card in human Player's hand
+                    Console.WriteLine(cCard.GetName());
+                }
+                Console.WriteLine("");
 
-            Console.WriteLine("The current pot is {0}.", pokerGame.CurrentPot);
-            pokerGame.PlayBettingRound();
-            Console.WriteLine("");
+                Console.WriteLine("The current pot is {0}.", pokerGame.CurrentPot);
+                pokerGame.PlayBettingRound();
+                Console.WriteLine("");
 
-            // The flop
-            pokerGame.DrawFlop();
-            Console.WriteLine("The flop has been drawn. The community cards are:");
-            DispCommunityCards(pokerGame);
-            Console.WriteLine("");
+                // The flop
+                pokerGame.DrawFlop();
+                Console.WriteLine("The flop has been drawn. The community cards are:");
+                DispCommunityCards(pokerGame);
+                Console.WriteLine("");
 
-            Console.WriteLine("The current pot is {0}.", pokerGame.CurrentPot);
-            pokerGame.PlayBettingRound();
-            Console.WriteLine("");
+                Console.WriteLine("The current pot is {0}.", pokerGame.CurrentPot);
+                pokerGame.PlayBettingRound();
+                Console.WriteLine("");
 
-            // The turn
-            pokerGame.DrawTurn();
-            Console.WriteLine("The turn has been drawn. The community cards are:");
-            DispCommunityCards(pokerGame);
-            Console.WriteLine("");
+                // The turn
+                pokerGame.DrawTurn();
+                Console.WriteLine("The turn has been drawn. The community cards are:");
+                DispCommunityCards(pokerGame);
+                Console.WriteLine("");
 
-            Console.WriteLine("The current pot is {0}.", pokerGame.CurrentPot);
-            pokerGame.PlayBettingRound();
-            Console.WriteLine("");
-            
-            // The river
-            pokerGame.DrawRiver();
-            Console.WriteLine("The river has been drawn. The community cards are:");
-            DispCommunityCards(pokerGame);
-            Console.WriteLine("");
+                Console.WriteLine("The current pot is {0}.", pokerGame.CurrentPot);
+                pokerGame.PlayBettingRound();
+                Console.WriteLine("");
 
-            Console.WriteLine("The current pot is {0}.", pokerGame.CurrentPot);
-            pokerGame.PlayBettingRound();
-            Console.WriteLine("");
+                // The river
+                pokerGame.DrawRiver();
+                Console.WriteLine("The river has been drawn. The community cards are:");
+                DispCommunityCards(pokerGame);
+                Console.WriteLine("");
 
-            // Decide winner
-            List<Card> concatList = humanPlayer.CurrentHand.Concat<Card>(pokerGame.CommunityCards).ToList<Card>();
-            CardHand handType = pokerGame.FindHandType(concatList);
-            Console.WriteLine(handType.HandType.ToString());
-            foreach (Card cCard in handType.RelevantCards)
-            {
-                Console.WriteLine(cCard.GetName());
-            }
-            Console.WriteLine("Is flush: {0}", handType.IsFlush);
+                Console.WriteLine("The current pot is {0}.", pokerGame.CurrentPot);
+                pokerGame.PlayBettingRound();
+                Console.WriteLine("");
+
+                // Decide winner
+                int currentPot = pokerGame.CurrentPot;
+                Player winningPlayer = pokerGame.FindWinner();
+                Console.WriteLine("{0} won that hand, winning {1} chips.", winningPlayer.PlayerName, currentPot);
+                pokerGame.PrepForNewHand();
+
+                Console.WriteLine("Do you want to play another round? (y/n)");
+                do
+                {
+                    playerResponse = Console.ReadLine();
+                } while (playerResponse != "y" || playerResponse != "n");
+            } while (playerResponse == "y");
 
             Console.ReadKey();
         }
@@ -76,7 +85,7 @@ namespace texasHoldEm
         /// DEBUG method: Alternative Main() that allows manual checking of input hands
         /// </summary>
         /// <param name="args"></param>
-        public static void Main(string[] args)
+        public static void FalseMain(string[] args)
         {
             Console.WriteLine("Which cards to check?");
             List<Card> cardList = new List<Card>();

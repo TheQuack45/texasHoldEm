@@ -163,6 +163,14 @@ namespace texasHoldEm
             }
             this._chips -= chipCount;
         }
+
+        public List<Card> ReturnCards()
+        {
+            List<Card> retList = this._currentHand.ToList<Card>();
+            this._currentHand = new Card[this._currentHand.Length];
+
+            return retList;
+        }
         #endregion
     }
 

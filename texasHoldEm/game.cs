@@ -299,11 +299,50 @@ namespace texasHoldEm
         }
 
         /// <summary>
-        /// Checks this Game's list of registered Players and decides which one has the best hand
+        /// Add appropriate amount of chips to the winning Player object(s).
         /// </summary>
-        /// <returns></returns>
+        public void DecideWinner()
+        {
+            List<Player> winningPlayers = null;
+            Player winner = null ;
+
+            try
+            {
+                winner = this.FindWinner();
+            }
+            catch (MultipleWinnersException e)
+            {
+                winningPlayers = e.WinningPlayers;
+            }
+
+            if (winner != null && winningPlayers == null)
+            {
+                // Single winner
+                // Add all the chips from the pot
+                winner.AddChips(this.CurrentPot);
+            }
+            else if (winner == null && winningPlayers != null)
+            {
+                // Multiple winners
+                // Split the pot
+                foreach (Player cPlayer in winningPlayers)
+                {
+                    // To each winning Player, add the result of dividing the pot by amount of Players
+                    cPlayer.AddChips((int)(this.CurrentPot / winningPlayers.Count));
+                }
+            }
+
+            this._currentPot = 0;
+        }
+
+        /// <summary>
+        /// <para>Checks this Game's list of registered Players and decides which one has the best hand
+        /// <para>Throws MultipleWinnersException with a List&lt;Player&gt; containing the winners. Handle this exception to 
+        /// </summary>
+        /// <returns>Player from this Game with the highest value hand</returns>
         public Player FindWinner()
         {
+            List<Player> winningPlayers = new List<Player>();
             Player cWinPlayer = null;
             CardHand cWinPlayerHand = null;
 
@@ -314,23 +353,45 @@ namespace texasHoldEm
                 {
                     if ((int)cHand.HandType > (int)cWinPlayerHand.HandType)
                     {
+                        // The current hand is better than the previous best hand
                         cWinPlayer = cPlayer;
                         cWinPlayerHand = cHand;
                     }
                     else if ((int)cHand.HandType == (int)cWinPlayerHand.HandType)
                     {
+                        // The current hand is equal to the previous best hand
+                        // Check if this hand's high card is better than the previous best hand's high card
                         if (HoldEmRanks[cHand.GetHigh().Pos] > HoldEmRanks[cWinPlayerHand.GetHigh().Pos])
                         {
-                            // TODO: finish this
+                            // This hand's high card is better than the previous best hand's high card
+                            // Set this hand/player as the currne winner
+                            cWinPlayer = cPlayer;
+                            cWinPlayerHand = cHand;
+                        }
+                        else if (HoldEmRanks[cHand.GetHigh().Pos] == HoldEmRanks[cWinPlayerHand.GetHigh().Pos])
+                        {
+                            if (!winningPlayers.Contains<Player>(cWinPlayer))
+                            {
+                                winningPlayers.Add(cWinPlayer);
+                            }
+                            winningPlayers.Add(cPlayer);
                         }
                     }
                 }
                 catch (NullReferenceException e)
                 {
+                    // Should only be triggered on the first Player, so it is safe to change the current winning Player object
                     cWinPlayer = cPlayer;
                     cWinPlayerHand = cHand;
                 }
             }
+
+            if (winningPlayers.Count > 0)
+            {
+                throw new MultipleWinnersException("Multiple players won. Split the pot.", winningPlayers);
+            }
+
+            return cWinPlayer;
         }
 
         /// <summary>
@@ -566,6 +627,23 @@ namespace texasHoldEm
             }
 
             return cardHand;
+        }
+
+        public void PrepForNewHand()
+        {
+            this._currentBet = 0;
+            this._foldedPlayerList.Clear();
+
+            foreach (Player cPlayer in this.PlayerList)
+            {
+                List<Card> cPlayerHand = cPlayer.ReturnCards();
+                foreach (Card cCard in cPlayerHand)
+                {
+                    this._cardDeck.CardStack.Push(cCard);
+                }
+            }
+
+            this._cardDeck.Shuffle();
         }
         #endregion
     }
