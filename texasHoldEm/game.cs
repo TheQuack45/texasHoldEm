@@ -299,6 +299,51 @@ namespace texasHoldEm
         }
 
         /// <summary>
+        /// Checks this Game's list of registered Players and decides which one has the best hand
+        /// </summary>
+        /// <returns></returns>
+        public Player FindWinner()
+        {
+            Player cWinPlayer = null;
+            CardHand cWinPlayerHand = null;
+
+            foreach (Player cPlayer in this.PlayerList)
+            {
+                CardHand cHand = this.FindHandType(this.GetSevenSet(cPlayer));
+                try
+                {
+                    if ((int)cHand.HandType > (int)cWinPlayerHand.HandType)
+                    {
+                        cWinPlayer = cPlayer;
+                        cWinPlayerHand = cHand;
+                    }
+                    else if ((int)cHand.HandType == (int)cWinPlayerHand.HandType)
+                    {
+                        if (HoldEmRanks[cHand.GetHigh().Pos] > HoldEmRanks[cWinPlayerHand.GetHigh().Pos])
+                        {
+                            // TODO: finish this
+                        }
+                    }
+                }
+                catch (NullReferenceException e)
+                {
+                    cWinPlayer = cPlayer;
+                    cWinPlayerHand = cHand;
+                }
+            }
+        }
+
+        /// <summary>
+        /// Returns the full set of this Game's community cards and the given Player's hand
+        /// </summary>
+        /// <param name="inPlayer">Player object to get hand of 2 from</param>
+        /// <returns>Full List&lt;Card&gt; of 7</returns>
+        public List<Card> GetSevenSet(Player inPlayer)
+        {
+            return inPlayer.CurrentHand.ToList<Card>().Concat(this.CommunityCards).ToList<Card>();
+        }
+
+        /// <summary>
         /// Returns a CardHand object containing info on the hand of the given cardList.
         /// </summary>
         /// <param name="cardList">List&lt;Card&gt;, preferably unsorted</param>
@@ -510,7 +555,7 @@ namespace texasHoldEm
                 }
                 catch (FormatException e)
                 {
-                    throw new StupidityException("This is why you use an enum on card rank and suit. If this ever gets thrown, it's time to REFACTOR!");
+                    throw new StupidityException("This is why you use an enum on card rank and suit, you idiot! If this ever gets thrown, it's time to REFACTOR!");
                 }
             }
 
