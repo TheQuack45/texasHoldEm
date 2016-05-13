@@ -113,6 +113,9 @@ namespace texasHoldEm
 
         public delegate void BetMadeEventHandler(object sender, BetMadeEventArgs args);
         public event BetMadeEventHandler BetMade;
+
+        public delegate void HandFinishedEventHandler(object sender, HandFinishedEventArgs args);
+        public event HandFinishedEventHandler HandFinished;
         #endregion
 
         #region Constructors definition
@@ -192,8 +195,19 @@ namespace texasHoldEm
             {
                 if (!this.FoldedPlayerList.Contains(cPlayer))
                 {
-                    // Player has not folded out of this hand
-                    this.GetNextBet(cPlayer);
+                    if (this.FoldedPlayerList.Count == this.PlayerList.Count - 1)
+                    {
+                        // All players have folded except one
+                        // The remaining player automatically wins
+                        cPlayer.AddChips(this.CurrentPot);
+                        this._currentPot = 0;
+                        OnHandFinished(new HandFinishedEventArgs(cPlayer.PlayerName, this.CurrentPot));
+                    }
+                    else
+                    {
+                        // Player has not folded out of this hand
+                        this.GetNextBet(cPlayer);
+                    }
                 }
             }
 
@@ -262,6 +276,14 @@ namespace texasHoldEm
             if (BetMade != null)
             {
                 BetMade(this, args);
+            }
+        }
+
+        protected virtual void OnHandFinished(HandFinishedEventArgs args)
+        {
+            if (HandFinished != null)
+            {
+                HandFinished(this, args);
             }
         }
 
@@ -373,41 +395,45 @@ namespace texasHoldEm
 
             foreach (Player cPlayer in this.PlayerList)
             {
-                CardHand cHand = this.FindHandType(this.GetSevenSet(cPlayer));
-                try
+                if (!this.FoldedPlayerList.Contains(cPlayer))
                 {
-                    if ((int)cHand.HandType > (int)cWinPlayerHand.HandType)
+                    // Player has not folded
+                    CardHand cHand = this.FindHandType(this.GetSevenSet(cPlayer));
+                    try
                     {
-                        // The current hand is better than the previous best hand
-                        cWinPlayer = cPlayer;
-                        cWinPlayerHand = cHand;
-                    }
-                    else if ((int)cHand.HandType == (int)cWinPlayerHand.HandType)
-                    {
-                        // The current hand is equal to the previous best hand
-                        // Check if this hand's high card is better than the previous best hand's high card
-                        if (HoldEmRanks[cHand.GetHigh().Pos] > HoldEmRanks[cWinPlayerHand.GetHigh().Pos])
+                        if ((int)cHand.HandType > (int)cWinPlayerHand.HandType)
                         {
-                            // This hand's high card is better than the previous best hand's high card
-                            // Set this hand/player as the currne winner
+                            // The current hand is better than the previous best hand
                             cWinPlayer = cPlayer;
                             cWinPlayerHand = cHand;
                         }
-                        else if (HoldEmRanks[cHand.GetHigh().Pos] == HoldEmRanks[cWinPlayerHand.GetHigh().Pos])
+                        else if ((int)cHand.HandType == (int)cWinPlayerHand.HandType)
                         {
-                            if (!winningPlayers.Contains<Player>(cWinPlayer))
+                            // The current hand is equal to the previous best hand
+                            // Check if this hand's high card is better than the previous best hand's high card
+                            if (HoldEmRanks[cHand.GetHigh().Pos] > HoldEmRanks[cWinPlayerHand.GetHigh().Pos])
                             {
-                                winningPlayers.Add(cWinPlayer);
+                                // This hand's high card is better than the previous best hand's high card
+                                // Set this hand/player as the currne winner
+                                cWinPlayer = cPlayer;
+                                cWinPlayerHand = cHand;
                             }
-                            winningPlayers.Add(cPlayer);
+                            else if (HoldEmRanks[cHand.GetHigh().Pos] == HoldEmRanks[cWinPlayerHand.GetHigh().Pos])
+                            {
+                                if (!winningPlayers.Contains<Player>(cWinPlayer))
+                                {
+                                    winningPlayers.Add(cWinPlayer);
+                                }
+                                winningPlayers.Add(cPlayer);
+                            }
                         }
                     }
-                }
-                catch (NullReferenceException e)
-                {
-                    // Should only be triggered on the first Player, so it is safe to change the current winning Player object
-                    cWinPlayer = cPlayer;
-                    cWinPlayerHand = cHand;
+                    catch (NullReferenceException e)
+                    {
+                        // Should only be triggered on the first Player, so it is safe to change the current winning Player object
+                        cWinPlayer = cPlayer;
+                        cWinPlayerHand = cHand;
+                    }
                 }
             }
 
@@ -681,6 +707,27 @@ namespace texasHoldEm
             this._cardDeck.Shuffle();
         }
         #endregion
+    }
+
+    class HandFinishedEventArgs : EventArgs
+    {
+        private string _playerName;
+        public string PlayerName
+        {
+            get { return _playerName; }
+        }
+
+        private int _currentPot;
+        public int CurrentPot
+        {
+            get { return _currentPot; }
+        }
+
+        public HandFinishedEventArgs(string playerName, int currentPot)
+        {
+            this._playerName = playerName;
+            this._currentPot = currentPot;
+        }
     }
 
     class BetMadeEventArgs : EventArgs

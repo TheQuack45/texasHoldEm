@@ -11,15 +11,50 @@ namespace texasHoldEm
     {
         static void Main(string[] args)
         {
-            string playerResponse = "";
-
             Game pokerGame = new Game(Game.PossibleGames.TexasHoldEm);
             pokerGame.BetMade += new Game.BetMadeEventHandler(InformBetAction);
+            pokerGame.HandFinished += new Game.HandFinishedEventHandler(InformHandFinished);
             Player humanPlayer = new Player(pokerGame, "Human");
             Computer testComputer = new Computer(pokerGame, "Computer");
             pokerGame.AddPlayer(humanPlayer);
             pokerGame.AddPlayer(testComputer);
             pokerGame.DistributeChips(5);
+
+            PlayGame(pokerGame);
+        }
+
+        /// <summary>
+        /// DEBUG method: Alternative Main() that allows manual checking of input hands
+        /// </summary>
+        /// <param name="args"></param>
+        public static void FalseMain(string[] args)
+        {
+            Console.WriteLine("Which cards to check?");
+            List<Card> cardList = new List<Card>();
+            for (int i = 0; i < 7; i++)
+            {
+                string tmp = Console.ReadLine();
+                cardList.Add(new Card(Regex.Split(tmp, " of ")[0], Regex.Split(tmp, " of ")[1]));
+            }
+            Game testGame = new Game(Game.PossibleGames.TexasHoldEm);
+            CardHand outHand = testGame.FindHandType(testGame.SortByPos(cardList));
+
+            Console.WriteLine("outHand type: {0}", outHand.HandType);
+            foreach (Card cCard in outHand.RelevantCards)
+            {
+                Console.WriteLine(cCard.GetName());
+            }
+
+            Console.ReadKey();
+        }
+
+        /// <summary>
+        /// Perform the actual gameplay. Disgusting hack job
+        /// </summary>
+        /// <param name="pokerGame">The Game object to work with</param>
+        public static void PlayGame(Game pokerGame)
+        {
+            string playerResponse = "";
 
             do
             {
@@ -99,29 +134,35 @@ namespace texasHoldEm
             Console.ReadKey();
         }
 
-        /// <summary>
-        /// DEBUG method: Alternative Main() that allows manual checking of input hands
-        /// </summary>
-        /// <param name="args"></param>
-        public static void FalseMain(string[] args)
+        public static void InformHandFinished(object sender, HandFinishedEventArgs args)
         {
-            Console.WriteLine("Which cards to check?");
-            List<Card> cardList = new List<Card>();
-            for (int i = 0; i < 7; i++)
-            {
-                string tmp = Console.ReadLine();
-                cardList.Add(new Card(Regex.Split(tmp, " of ")[0], Regex.Split(tmp, " of ")[1]));
-            }
-            Game testGame = new Game(Game.PossibleGames.TexasHoldEm);
-            CardHand outHand = testGame.FindHandType(testGame.SortByPos(cardList));
+            string playerResponse = "";
 
-            Console.WriteLine("outHand type: {0}", outHand.HandType);
-            foreach (Card cCard in outHand.RelevantCards)
+            Console.WriteLine("Every other player folded out of the hand, so {0} won that hand, winning {1} chips." + args.PlayerName, args.CurrentPot);
+            do
             {
-                Console.WriteLine(cCard.GetName());
-            }
+                Console.WriteLine("Do you want to play another round? (y/n)");
 
-            Console.ReadKey();
+                playerResponse = Console.ReadLine();
+                if (playerResponse == "y" || playerResponse == "n")
+                {
+                    break;
+                }
+                else
+                {
+                    Console.WriteLine("I don't understand that command.");
+                }
+            } while (playerResponse == "");
+
+            if (playerResponse == "y")
+            {
+                PlayGame((Game)sender);
+            }
+            else
+            {
+                Console.WriteLine("Press Enter to exit the game.");
+                Console.ReadKey();
+            }
         }
 
         public static void InformBetAction(object sender, BetMadeEventArgs args)
