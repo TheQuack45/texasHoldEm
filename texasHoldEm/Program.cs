@@ -16,11 +16,15 @@ namespace texasHoldEm
             Game pokerGame = new Game(Game.PossibleGames.TexasHoldEm);
             pokerGame.BetMade += new Game.BetMadeEventHandler(InformBetAction);
             Player humanPlayer = new Player(pokerGame, "Human");
-            //Computer testComputer = new Computer(pokerGame);
+            Computer testComputer = new Computer(pokerGame, "Computer");
             pokerGame.AddPlayer(humanPlayer);
+            pokerGame.AddPlayer(testComputer);
+            pokerGame.DistributeChips(5);
 
             do
             {
+                Console.Clear();
+
                 pokerGame.CardDeck.Shuffle();
                 pokerGame.DistributeHands();
                 Console.WriteLine("Your current hand is:");
@@ -67,17 +71,31 @@ namespace texasHoldEm
 
                 // Decide winner
                 int currentPot = pokerGame.CurrentPot;
-                Player winningPlayer = pokerGame.FindWinner();
-                Console.WriteLine("{0} won that hand, winning {1} chips.", winningPlayer.PlayerName, currentPot);
+                try
+                {
+                    Player winningPlayer = pokerGame.DecideWinner();
+                    Console.WriteLine("{0} won that hand, winning {1} chips.", winningPlayer.PlayerName, currentPot);
+                }
+                catch (MultipleWinnersException e)
+                {
+                    Console.WriteLine("Multiple players won that hand. Winners: ");
+                    foreach (Player cPlayer in e.WinningPlayers)
+                    {
+                        Console.Write(cPlayer.PlayerName + ", ");
+                    }
+                    Console.WriteLine(".\r\nThe pot was split between the players, with each winning {0} chips.", (int)(currentPot / e.WinningPlayers.Count));
+                }
+
                 pokerGame.PrepForNewHand();
 
                 Console.WriteLine("Do you want to play another round? (y/n)");
                 do
                 {
                     playerResponse = Console.ReadLine();
-                } while (playerResponse != "y" || playerResponse != "n");
+                } while (playerResponse == "");
             } while (playerResponse == "y");
 
+            Console.WriteLine("Press Enter to exit the game.");
             Console.ReadKey();
         }
 
