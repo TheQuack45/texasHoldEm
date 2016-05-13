@@ -17,25 +17,25 @@ namespace texasHoldEm
         #endregion
 
         #region Members definition
-        private Card[] _currentHand;
+        protected Card[] _currentHand;
         public Card[] CurrentHand
         {
             get { return _currentHand; }
         }
 
-        private int _handSize;
+        protected int _handSize;
         public int HandSize
         {
             get { return _handSize; }
         }
 
-        private int _chips;
+        protected int _chips;
         public int Chips
         {
             get { return _chips; }
         }
 
-        private Game _registeredGame;
+        protected Game _registeredGame;
         public Game RegisteredGame
         {
             get { return _registeredGame; }
@@ -121,6 +121,12 @@ namespace texasHoldEm
             }
         }
         
+        // TODO: Refactor Player and Computer classes so that both implement from a common class to allow override of MakeBet()
+        /// <summary>
+        /// Gets bet from console and makes the appropriate changes to this Player's chip count
+        /// </summary>
+        /// <param name="currentBet">Game's current bet</param>
+        /// <returns>BetChoice object with information about bet made</returns>
         public BetChoice MakeBet(int currentBet)
         {
             BetChoice betChoice = Program.GetPlayerBet(currentBet, this.Chips);

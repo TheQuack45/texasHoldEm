@@ -157,6 +157,18 @@ namespace texasHoldEm
         }
 
         /// <summary>
+        /// Distribute 5 chips to each Player to start out
+        /// </summary>
+        /// <param name="cnt"></param>
+        public void DistributeChips(int cnt)
+        {
+            foreach (Player cPlayer in this.PlayerList)
+            {
+                cPlayer.AddChips(5);
+            }
+        }
+
+        /// <summary>
         /// Distribute cards to each player to fill their hands
         /// </summary>
         public void DistributeHands()
@@ -168,7 +180,6 @@ namespace texasHoldEm
                     // TODO: error handling
                     cPlayer.AddCardToHand(this.CardDeck.DrawCard());
                 }
-                cPlayer.AddChips(5);
             }
         }
 
@@ -196,7 +207,16 @@ namespace texasHoldEm
         /// <param name="cPlayer">The Player to get a bet from</param>
         private void GetNextBet(Player cPlayer)
         {
-            BetChoice returnedBet = cPlayer.MakeBet(this.CurrentBet);
+            BetChoice returnedBet = null;
+            if (cPlayer is Computer)
+            {
+                returnedBet = ((Computer)cPlayer).ChooseBet(this.CurrentBet);
+            }
+            else if (cPlayer is Player)
+            {
+                returnedBet = cPlayer.MakeBet(this.CurrentBet);
+            }
+
             if (returnedBet.BetAction == BetChoice.BetActions.Raise)
             {
                 // Currently betting Player raised
@@ -301,10 +321,10 @@ namespace texasHoldEm
         /// <summary>
         /// Add appropriate amount of chips to the winning Player object(s).
         /// </summary>
-        public void DecideWinner()
+        public Player DecideWinner()
         {
             List<Player> winningPlayers = null;
-            Player winner = null ;
+            Player winner = null;
 
             try
             {
@@ -333,6 +353,11 @@ namespace texasHoldEm
             }
 
             this._currentPot = 0;
+
+            if (winner != null)
+                return winner;
+
+            throw new MultipleWinnersException("Multiple Players won that hand.", winningPlayers);
         }
 
         /// <summary>
@@ -629,9 +654,13 @@ namespace texasHoldEm
             return cardHand;
         }
 
+        /// <summary>
+        /// Set up this Game object for a new hand
+        /// </summary>
         public void PrepForNewHand()
         {
             this._currentBet = 0;
+            this._currentPot = 0;
             this._foldedPlayerList.Clear();
 
             foreach (Player cPlayer in this.PlayerList)
@@ -641,6 +670,12 @@ namespace texasHoldEm
                 {
                     this._cardDeck.CardStack.Push(cCard);
                 }
+            }
+
+            for (int i = 0; i < this._communityCards.Length; i++)
+            {
+                this._cardDeck.CardStack.Push(this._communityCards[i]);
+                this._communityCards[i] = null;
             }
 
             this._cardDeck.Shuffle();
