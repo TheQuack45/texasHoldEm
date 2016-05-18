@@ -14,6 +14,11 @@ namespace texasHoldEm
 
         }
 
+        public Computer(string computerName)
+        {
+            this._playerName = computerName;
+        }
+
         public Computer(Game gameToRegister, string computerName)
         {
             this.RegisterGame(gameToRegister);
@@ -22,7 +27,7 @@ namespace texasHoldEm
         #endregion
 
         #region Methods definition
-        public BetChoice ChooseBet(int currentBet)
+        public override BetChoice MakeBet(int currentBet)
         {
             BetChoice betChoice = null;
 

@@ -151,10 +151,10 @@ namespace texasHoldEm
                     // This is the Computer player object
                     this._computerPlayer = (Computer)cPlayer;
                 }
-                else
+                else if (cPlayer is Human)
                 {
                     // This is the human Player object
-                    this._humanPlayer = cPlayer;
+                    this._humanPlayer = (Human)cPlayer;
                 }
             }
         }
@@ -221,15 +221,7 @@ namespace texasHoldEm
         /// <param name="cPlayer">The Player to get a bet from</param>
         private void GetNextBet(Player cPlayer)
         {
-            BetChoice returnedBet = null;
-            if (cPlayer is Computer)
-            {
-                returnedBet = ((Computer)cPlayer).ChooseBet(this.CurrentBet);
-            }
-            else if (cPlayer is Player)
-            {
-                returnedBet = cPlayer.MakeBet(this.CurrentBet);
-            }
+            BetChoice returnedBet = cPlayer.MakeBet(this.CurrentBet);
 
             if (returnedBet.BetAction == BetChoice.BetActions.Raise)
             {

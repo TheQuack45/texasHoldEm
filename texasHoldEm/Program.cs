@@ -14,7 +14,7 @@ namespace texasHoldEm
             Game pokerGame = new Game(Game.PossibleGames.TexasHoldEm);
             pokerGame.BetMade += new Game.BetMadeEventHandler(InformBetAction);
             pokerGame.HandFinished += new Game.HandFinishedEventHandler(InformHandFinished);
-            Player humanPlayer = new Player(pokerGame, "Human");
+            Human humanPlayer = new Human(pokerGame, "Human");
             Computer testComputer = new Computer(pokerGame, "Computer");
             pokerGame.AddPlayer(humanPlayer);
             pokerGame.AddPlayer(testComputer);
@@ -63,6 +63,7 @@ namespace texasHoldEm
                 pokerGame.CardDeck.Shuffle();
                 pokerGame.DistributeHands();
                 Console.WriteLine("Your current hand is:");
+                Card debugCard = pokerGame.HumanPlayer.CurrentHand[0];
                 foreach (Card cCard in pokerGame.HumanPlayer.CurrentHand)
                 {
                     // Go through each Card in human Player's hand

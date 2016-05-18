@@ -49,6 +49,7 @@
     <Compile Include="DeckEmptyException.cs" />
     <Compile Include="Game.cs" />
     <Compile Include="HandFullException.cs" />
+    <Compile Include="Human.cs" />
     <Compile Include="MultipleWinnersException.cs" />
     <Compile Include="Player.cs" />
     <Compile Include="Program.cs" />

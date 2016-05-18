@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace texasHoldEm
 {
-    class Player
+    abstract class Player
     {
         #region Static members definition
         public static readonly Dictionary<Game.PossibleGames, int> HandSizeDict = new Dictionary<Game.PossibleGames, int>()
@@ -45,19 +45,6 @@ namespace texasHoldEm
         public string PlayerName
         {
             get { return _playerName; }
-        }
-        #endregion
-
-        #region Constructors definition
-        public Player()
-        {
-            
-        }
-
-        public Player(Game gameToRegister, string playerName)
-        {
-            this.RegisterGame(gameToRegister);
-            this._playerName = playerName;
         }
         #endregion
 
@@ -120,23 +107,6 @@ namespace texasHoldEm
                 throw new HandFullException("The Card could not be added because the current Player's hand is full");
             }
         }
-        
-        // TODO: Refactor Player and Computer classes so that both implement from a common class to allow override of MakeBet()
-        /// <summary>
-        /// Gets bet from console and makes the appropriate changes to this Player's chip count
-        /// </summary>
-        /// <param name="currentBet">Game's current bet</param>
-        /// <returns>BetChoice object with information about bet made</returns>
-        public BetChoice MakeBet(int currentBet)
-        {
-            BetChoice betChoice = Program.GetPlayerBet(currentBet, this.Chips);
-            if (betChoice.BetAction == BetChoice.BetActions.Call ||
-                betChoice.BetAction == BetChoice.BetActions.Raise)
-            {
-                this._chips -= betChoice.BetAmount;
-            }
-            return betChoice;
-        }
 
         /// <summary>
         /// Set this Player's chip amount to `chipCount`
@@ -177,6 +147,15 @@ namespace texasHoldEm
 
             return retList;
         }
+        #endregion
+
+        #region Abstract methods definition
+        /// <summary>
+        /// Abstract definition to get the next bet from this Player object
+        /// </summary>
+        /// <param name="currentBet">Int32 of the Game's current required bet amount</param>
+        /// <returns>BetChoice object containing info of the choice made</returns>
+        public abstract BetChoice MakeBet(int currentBet);
         #endregion
     }
 
