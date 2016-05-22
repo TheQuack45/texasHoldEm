@@ -180,8 +180,21 @@ namespace texasHoldEm
             {
                 for (int i = 1; i <= cPlayer.HandSize; i++)
                 {
-                    // TODO: error handling
-                    cPlayer.AddCardToHand(this.CardDeck.DrawCard());
+                    try
+                    {
+                        cPlayer.AddCardToHand(this.CardDeck.DrawCard());
+                    }
+                    catch (HandFullException e)
+                    {
+                        // I don't know how this happened...
+                        // Do nothing
+                        continue;
+                    }
+                    catch (ArgumentNullException e)
+                    {
+                        // Again, wtf?
+                        continue;
+                    }
                 }
             }
         }
@@ -574,6 +587,7 @@ namespace texasHoldEm
         /// <returns>CardHand object containing hand type and relevant cards</returns>
         public CardHand CheckCombos(List<Card> sortedCardList)
         {
+            // TODO: Make able to check straight with ace low
             CardHand cardHand = new CardHand();
             Card prevCard = null;
             int straightSize = 1;

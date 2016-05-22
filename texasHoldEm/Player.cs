@@ -93,6 +93,11 @@ namespace texasHoldEm
         /// <param name="cCard">The Card to add to the Player's hand</param>
         public void AddCardToHand(Card cCard)
         {
+            if (cCard == null)
+            {
+                throw new ArgumentNullException("cCard", "cCard argument cannot be null.");
+            }
+
             if (!this.CurrentHand.Contains<Card>(cCard))
             {
                 for (int i = 0; i < this.HandSize; i++)
